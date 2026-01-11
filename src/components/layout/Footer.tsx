@@ -1,113 +1,97 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Share2, Headphones } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-primary-foreground">
-      {/* Newsletter Section */}
-      <div className="border-b border-primary-foreground/10">
-        <div className="container py-12">
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="font-heading text-2xl md:text-3xl font-bold mb-3">
-              Join the Organic Movement
-            </h3>
-            <p className="text-primary-foreground/80 mb-6">
-              Subscribe to get updates on fresh arrivals, special offers, and farming stories.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
-              />
-              <Button className="bg-gold hover:bg-gold/90 text-gold-foreground font-semibold whitespace-nowrap">
-                Subscribe
-              </Button>
-            </form>
-          </div>
-        </div>
-      </div>
-
+    <footer className="bg-muted">
       {/* Main Footer */}
-      <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="container py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
-          <div className="lg:col-span-1">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-1"
+          >
             <Link to="/" className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="Kuppam Organics" className="h-16 w-16 object-contain bg-primary-foreground rounded-full p-1" />
+              <img src={logo} alt="Kuppam Organics" className="h-10 w-10 object-contain" />
+              <span className="font-heading text-lg font-bold text-primary">Kuppam Organics</span>
             </Link>
-            <p className="text-primary-foreground/80 text-sm mb-4">
-              Reviving traditional farming methods to bring you the purest organic produce from Kuppam's fertile soil.
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Bringing the purity of traditional Indian farming and organic wellness to your doorstep since 2012.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="hover:text-gold transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="hover:text-gold transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="hover:text-gold transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-            </div>
-          </div>
+          </motion.div>
 
           {/* Quick Links */}
-          <div>
-            <h4 className="font-heading font-semibold text-lg mb-4">Quick Links</h4>
-            <ul className="space-y-3 text-sm text-primary-foreground/80">
-              <li><Link to="/products" className="hover:text-gold transition-colors">All Products</Link></li>
-              <li><Link to="/about" className="hover:text-gold transition-colors">Our Story</Link></li>
-              <li><Link to="/locations" className="hover:text-gold transition-colors">Store Locations</Link></li>
-              <li><Link to="/contact" className="hover:text-gold transition-colors">Contact Us</Link></li>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">Quick Links</h4>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li><Link to="/products" className="hover:text-primary transition-colors">Shop All</Link></li>
+              <li><Link to="/about" className="hover:text-primary transition-colors">Our Farmers</Link></li>
+              <li><Link to="/about#sustainability" className="hover:text-primary transition-colors">Sustainability</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">Wholesale</Link></li>
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Categories */}
-          <div>
-            <h4 className="font-heading font-semibold text-lg mb-4">Categories</h4>
-            <ul className="space-y-3 text-sm text-primary-foreground/80">
-              <li><Link to="/products?category=vegetables" className="hover:text-gold transition-colors">Fresh Vegetables</Link></li>
-              <li><Link to="/products?category=fruits" className="hover:text-gold transition-colors">Seasonal Fruits</Link></li>
-              <li><Link to="/products?category=grains" className="hover:text-gold transition-colors">Grains & Millets</Link></li>
-              <li><Link to="/products?category=oils" className="hover:text-gold transition-colors">Cold-Pressed Oils</Link></li>
-              <li><Link to="/products?category=honey" className="hover:text-gold transition-colors">Pure Honey</Link></li>
+          {/* Support */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">Support</h4>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li><Link to="/shipping" className="hover:text-primary transition-colors">Shipping Policy</Link></li>
+              <li><Link to="/returns" className="hover:text-primary transition-colors">Returns & Refunds</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+              <li><Link to="/faq" className="hover:text-primary transition-colors">FAQs</Link></li>
             </ul>
-          </div>
+          </motion.div>
 
-          {/* Contact */}
-          <div>
-            <h4 className="font-heading font-semibold text-lg mb-4">Contact Us</h4>
-            <ul className="space-y-4 text-sm text-primary-foreground/80">
-              <li className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 shrink-0 mt-0.5" />
-                <span>123 Market Road, Kuppam, Andhra Pradesh 517425</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 shrink-0" />
-                <span>+91 98765 43210</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 shrink-0" />
-                <span>hello@kuppamorganics.com</span>
-              </li>
-            </ul>
-          </div>
+          {/* Follow Us */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">Follow Us</h4>
+            <div className="flex gap-3">
+              <motion.a
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                href="#"
+                className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+              >
+                <Share2 className="h-4 w-4" />
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                href="#"
+                className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+              >
+                <Headphones className="h-4 w-4" />
+              </motion.a>
+            </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-primary-foreground/10">
-        <div className="container py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-primary-foreground/60">
-          <p>© 2025 Kuppam Organics. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-gold transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-gold transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-gold transition-colors">Shipping Policy</a>
-          </div>
+      <div className="bg-primary/5 border-t border-border">
+        <div className="container py-6 text-center text-sm text-muted-foreground">
+          <p>© 2024 KUPPAM ORGANICS. SOIL TO SOUL.</p>
         </div>
       </div>
     </footer>
