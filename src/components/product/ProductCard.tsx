@@ -31,10 +31,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group block bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1"
+      className="group block bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-border/50"
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
           src={product.image}
           alt={product.name}
@@ -44,60 +44,53 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Badge */}
         {product.badge && (
           <span
-            className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${badgeStyles[product.badge]}`}
+            className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${badgeStyles[product.badge]}`}
           >
             {product.badge === 'bestseller' ? 'Best Seller' : product.badge}
           </span>
         )}
 
-        {/* Quick actions */}
-        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <div className="flex gap-2">
-            <Button
-              size="icon"
-              className="bg-card hover:bg-card/90 text-foreground shadow-lg"
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="shadow-lg"
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-          </div>
+        {/* Quick view on hover */}
+        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="shadow-lg text-xs"
+          >
+            <Eye className="h-3 w-3 mr-1" />
+            Quick View
+          </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <p className="text-xs text-accent font-medium uppercase tracking-wide mb-1">
+      <div className="p-3">
+        <p className="text-[10px] text-accent font-medium uppercase tracking-wide mb-0.5">
           {product.category}
         </p>
-        <h3 className="font-heading font-semibold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
+        <h3 className="font-heading font-semibold text-sm text-foreground mb-0.5 group-hover:text-primary transition-colors line-clamp-1">
           {product.name}
         </h3>
-        <p className="text-sm text-muted-foreground mb-3">
+        <p className="text-xs text-muted-foreground mb-2">
           {product.weight}
         </p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-baseline gap-2">
-            <span className="font-bold text-lg text-foreground">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-bold text-base text-foreground">
               ₹{product.price}
             </span>
             {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
+              <span className="text-xs text-muted-foreground line-through">
                 ₹{product.originalPrice}
               </span>
             )}
           </div>
           <Button
             size="sm"
-            className="bg-gold hover:bg-gold/90 text-gold-foreground font-semibold"
+            className="bg-gold hover:bg-gold/90 text-gold-foreground font-medium text-xs h-7 px-3"
             onClick={handleAddToCart}
           >
+            <ShoppingCart className="h-3 w-3 mr-1" />
             Add
           </Button>
         </div>
