@@ -1,16 +1,27 @@
 import { Link } from 'react-router-dom';
-import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 
 export default function Cart() {
-  const { items, updateQuantity, removeItem, totalPrice, totalItems } = useCart();
+  const { items, updateQuantity, removeItem, totalPrice, totalItems, isLoading } = useCart();
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container pb-20 text-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">Loading cart...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container pt-32 pb-20 text-center">
+        <div className="container pb-20 text-center">
           <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground/50 mb-6" />
           <h1 className="font-heading text-2xl font-bold mb-4">Your cart is empty</h1>
           <p className="text-muted-foreground mb-8">
@@ -29,7 +40,7 @@ export default function Cart() {
   return (
     <Layout>
       {/* Header */}
-      <div className="bg-card border-b border-border pt-24">
+      <div className="bg-card border-b border-border">
         <div className="container py-4">
           <Link
             to="/products"

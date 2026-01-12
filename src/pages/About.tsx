@@ -29,7 +29,7 @@ export default function About() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative pt-32 pb-24 bg-primary text-primary-foreground overflow-hidden">
+      <section className="relative pb-24 bg-primary text-primary-foreground overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <img src={heroImage} alt="" className="w-full h-full object-cover" />
         </div>

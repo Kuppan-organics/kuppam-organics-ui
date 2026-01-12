@@ -12,7 +12,7 @@ export default function Checkout() {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container pt-24 pb-20 text-center">
+        <div className="container pb-20 text-center">
           <h1 className="font-heading text-2xl font-bold mb-4">No items in cart</h1>
           <Link to="/products">
             <Button>Continue Shopping</Button>
@@ -24,7 +24,7 @@ export default function Checkout() {
 
   return (
     <Layout>
-      <section className="pt-24 pb-12 bg-background">
+      <section className="pb-12 bg-background">
         <div className="container">
           <h1 className="font-heading text-3xl font-bold mb-8">Checkout</h1>
 

@@ -1,27 +1,60 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Minus, Plus, ShoppingCart, Leaf, Truck, Shield } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, ShoppingCart, Leaf, Truck, Shield, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/product/ProductCard';
-import { products } from '@/lib/data';
+import { useGetApiProductsId, useGetApiProducts } from '@/api/generated/products/products';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
+import type { Product as ApiProduct } from '@/api/generated/models';
+import type { Product } from '@/lib/types';
+
+// Helper function to map API product to local Product type
+const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
+  return {
+    id: apiProduct.id || "",
+    name: apiProduct.name,
+    description: apiProduct.description,
+    price: apiProduct.discountedPrice || apiProduct.price,
+    originalPrice: apiProduct.discountedPrice ? apiProduct.price : undefined,
+    image: apiProduct.images?.[0] || "/placeholder.svg",
+    category: apiProduct.category.toLowerCase(),
+    weight: "1 kg", // Default weight
+    inStock: (apiProduct.stock || 0) > 0,
+  };
+};
 
 export default function ProductDetails() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
 
-  const product = products.find((p) => p.id === id);
-  const relatedProducts = products
-    .filter((p) => p.category === product?.category && p.id !== id)
-    .slice(0, 4);
+  // Fetch product details
+  const { data: productData, isLoading, error } = useGetApiProductsId(id || "", {
+    query: { enabled: !!id },
+  });
 
-  if (!product) {
+  // Fetch related products
+  const { data: relatedProductsData } = useGetApiProducts({
+    category: productData?.category,
+  });
+
+  if (isLoading) {
     return (
       <Layout>
-        <div className="container pt-24 pb-20 text-center">
+        <div className="container pb-20 text-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">Loading product...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error || !productData) {
+    return (
+      <Layout>
+        <div className="container pb-20 text-center">
           <h1 className="font-heading text-2xl font-bold mb-4">Product not found</h1>
           <Link to="/products">
             <Button>Back to Products</Button>
@@ -30,6 +63,14 @@ export default function ProductDetails() {
       </Layout>
     );
   }
+
+  const product = mapApiProductToProduct(productData);
+  const relatedProducts = relatedProductsData?.products
+    ? relatedProductsData.products
+        .filter((p) => p.category === productData.category && p.id !== id)
+        .slice(0, 4)
+        .map(mapApiProductToProduct)
+    : [];
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -42,7 +83,7 @@ export default function ProductDetails() {
   return (
     <Layout>
       {/* Breadcrumb */}
-      <div className="bg-card border-b border-border pt-20">
+      <div className="bg-card border-b border-border">
         <div className="container py-4">
           <Link
             to="/products"
@@ -62,7 +103,7 @@ export default function ProductDetails() {
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden bg-card shadow-card">
                 <img
-                  src={product.image}
+                  src={productData.images?.[0] || product.image}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />

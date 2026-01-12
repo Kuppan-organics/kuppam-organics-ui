@@ -9,7 +9,7 @@ export default function Contact() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="pt-24 pb-16 bg-primary text-primary-foreground">
+      <section className="pb-16 bg-primary text-primary-foreground">
         <div className="container text-center">
           <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
           <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto">

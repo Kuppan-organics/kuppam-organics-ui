@@ -1,18 +1,65 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { usePostApiAuthLogin } from '@/api/generated/authentication/authentication';
+import { useCart } from '@/contexts/CartContext';
+import { toast } from '@/hooks/use-toast';
 import logo from '@/assets/logo.png';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const { syncLocalCartToAPI } = useCart();
+
+  const loginMutation = usePostApiAuthLogin({
+    mutation: {
+      onSuccess: async (data) => {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          
+          // Sync localStorage cart to API
+          try {
+            await syncLocalCartToAPI();
+          } catch (error) {
+            console.error('Failed to sync cart:', error);
+          }
+          
+          toast({
+            title: 'Login successful',
+            description: 'Welcome back!',
+          });
+          navigate('/products');
+        }
+      },
+      onError: (error: any) => {
+        toast({
+          title: 'Login failed',
+          description: error.response?.data?.message || 'Invalid email or password',
+          variant: 'destructive',
+        });
+      },
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate({
+      data: {
+        email,
+        password,
+      },
+    });
+  };
 
   return (
     <Layout>
-      <section className="pt-24 pb-16 bg-background min-h-[70vh] flex items-center">
+      <section className="pb-16 bg-background min-h-[70vh] flex items-center">
         <div className="container">
           <div className="max-w-md mx-auto">
             <div className="bg-card rounded-2xl p-8 shadow-card">
@@ -27,13 +74,17 @@ export default function Login() {
                 </p>
               </div>
 
-              <form className="space-y-5">
+              <form className="space-y-5" onSubmit={handleSubmit}>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={loginMutation.isPending}
                   />
                 </div>
 
@@ -49,6 +100,10 @@ export default function Login() {
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={loginMutation.isPending}
                     />
                     <button
                       type="button"
@@ -63,8 +118,16 @@ export default function Login() {
                 <Button
                   type="submit"
                   className="w-full bg-gold hover:bg-gold/90 text-gold-foreground font-semibold py-5 rounded-xl"
+                  disabled={loginMutation.isPending}
                 >
-                  Sign In
+                  {loginMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    'Sign In'
+                  )}
                 </Button>
               </form>
 

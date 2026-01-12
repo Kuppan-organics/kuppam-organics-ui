@@ -1,48 +1,46 @@
-import { Package, Truck, CheckCircle } from 'lucide-react';
+import { Package, Truck, CheckCircle, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-
-const mockOrders = [
-  {
-    id: 'ORD-2025-001',
-    date: '2025-01-10',
-    status: 'delivered',
-    total: 750,
-    items: [
-      { name: 'Organic Tomatoes', quantity: 2, price: 60 },
-      { name: 'Forest Wild Honey', quantity: 1, price: 550 },
-    ],
-  },
-  {
-    id: 'ORD-2025-002',
-    date: '2025-01-08',
-    status: 'shipped',
-    total: 500,
-    items: [
-      { name: 'Virgin Coconut Oil', quantity: 1, price: 320 },
-      { name: 'Brown Rice', quantity: 1, price: 180 },
-    ],
-  },
-];
+import { useGetApiOrders } from '@/api/generated/orders/orders';
+import type { Order } from '@/api/generated/models';
 
 const statusConfig = {
   pending: { icon: Package, label: 'Processing', color: 'text-secondary' },
   shipped: { icon: Truck, label: 'Shipped', color: 'text-gold' },
   delivered: { icon: CheckCircle, label: 'Delivered', color: 'text-accent' },
+  cancelled: { icon: Package, label: 'Cancelled', color: 'text-destructive' },
 };
 
 export default function Orders() {
+  const token = localStorage.getItem('token');
+  const { data: ordersData, isLoading, error } = useGetApiOrders({
+    query: { enabled: !!token },
+  });
+
+  const orders = ordersData?.orders || [];
   return (
     <Layout>
-      <section className="pt-24 pb-12 bg-background min-h-[70vh]">
+      <section className="pb-12 bg-background min-h-[70vh]">
         <div className="container">
           <h1 className="font-heading text-3xl font-bold mb-8">My Orders</h1>
 
-          {mockOrders.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12 bg-card rounded-xl border border-border/50">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground text-sm">Loading orders...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 bg-card rounded-xl border border-border/50">
+              <p className="text-destructive text-sm mb-3">
+                Failed to load orders. Please try again later.
+              </p>
+            </div>
+          ) : orders.length > 0 ? (
             <div className="space-y-6">
-              {mockOrders.map((order) => {
-                const status = statusConfig[order.status as keyof typeof statusConfig];
+              {orders.map((order: Order) => {
+                const orderStatus = (order.status || 'pending').toLowerCase();
+                const status = statusConfig[orderStatus as keyof typeof statusConfig] || statusConfig.pending;
                 const StatusIcon = status.icon;
 
                 return (
@@ -51,11 +49,11 @@ export default function Orders() {
                       <div>
                         <p className="font-semibold text-lg">{order.id}</p>
                         <p className="text-sm text-muted-foreground">
-                          Ordered on {new Date(order.date).toLocaleDateString('en-IN', { 
+                          Ordered on {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', { 
                             day: 'numeric', 
                             month: 'long', 
                             year: 'numeric' 
-                          })}
+                          }) : 'N/A'}
                         </p>
                       </div>
                       <div className={`flex items-center gap-2 ${status.color}`}>
@@ -65,23 +63,23 @@ export default function Orders() {
                     </div>
 
                     <div className="border-t border-border pt-4">
-                      {order.items.map((item, index) => (
+                      {order.items?.map((item, index) => (
                         <div key={index} className="flex justify-between py-2">
                           <span className="text-muted-foreground">
-                            {item.name} × {item.quantity}
+                            {item.product?.name || 'Product'} × {item.quantity || 1}
                           </span>
-                          <span>₹{item.price * item.quantity}</span>
+                          <span>₹{((item.product?.discountedPrice || item.product?.price || 0) * (item.quantity || 1))}</span>
                         </div>
                       ))}
                       <div className="flex justify-between pt-3 border-t border-border mt-2 font-semibold">
                         <span>Total</span>
-                        <span>₹{order.total}</span>
+                        <span>₹{order.total || 0}</span>
                       </div>
                     </div>
 
                     <div className="mt-4 flex gap-3">
                       <Button variant="outline" size="sm">View Details</Button>
-                      {order.status === 'delivered' && (
+                      {orderStatus === 'delivered' && (
                         <Button size="sm" className="bg-gold hover:bg-gold/90 text-gold-foreground">
                           Reorder
                         </Button>

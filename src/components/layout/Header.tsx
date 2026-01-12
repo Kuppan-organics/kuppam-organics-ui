@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Menu, X, User, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
@@ -16,6 +16,17 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { totalItems } = useCart();
   const location = useLocation();
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (token) {
+      navigate('/profile');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl shadow-lg py-3">
@@ -61,14 +72,13 @@ export default function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <Link to="/login">
-              <Button 
-                variant="ghost" 
-                size="icon"
-              >
-                <User className="h-5 w-5" />
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleProfileClick}
+            >
+              <User className="h-5 w-5" />
+            </Button>
 
             <Link to="/cart" className="relative">
               <Button 
