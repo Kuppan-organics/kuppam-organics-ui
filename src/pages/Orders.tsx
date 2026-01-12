@@ -35,7 +35,7 @@ const statusConfig = {
 export default function Orders() {
   return (
     <Layout>
-      <section className="py-12 bg-background min-h-[70vh]">
+      <section className="pt-24 pb-12 bg-background min-h-[70vh]">
         <div className="container">
           <h1 className="font-heading text-3xl font-bold mb-8">My Orders</h1>
 

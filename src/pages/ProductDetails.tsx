@@ -21,7 +21,7 @@ export default function ProductDetails() {
   if (!product) {
     return (
       <Layout>
-        <div className="container py-20 text-center">
+        <div className="container pt-24 pb-20 text-center">
           <h1 className="font-heading text-2xl font-bold mb-4">Product not found</h1>
           <Link to="/products">
             <Button>Back to Products</Button>
@@ -42,7 +42,7 @@ export default function ProductDetails() {
   return (
     <Layout>
       {/* Breadcrumb */}
-      <div className="bg-card border-b border-border">
+      <div className="bg-card border-b border-border pt-20">
         <div className="container py-4">
           <Link
             to="/products"

@@ -110,7 +110,7 @@ export default function HeroSection() {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button 
                 variant="outline" 
-                className="border-card/30 text-card hover:bg-card/10 px-8 py-6 text-lg rounded-full backdrop-blur-sm group"
+                className="border-2 border-white/50 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 hover:border-white px-8 py-6 text-lg rounded-full shadow-lg group font-semibold"
               >
                 <Play className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
                 Watch Our Story
@@ -120,25 +120,6 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="w-6 h-10 rounded-full border-2 border-card/40 flex items-start justify-center p-2"
-        >
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-1.5 h-1.5 rounded-full bg-card/60"
-          />
-        </motion.div>
-      </motion.div>
     </section>
   );
 }

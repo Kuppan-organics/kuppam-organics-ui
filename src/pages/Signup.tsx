@@ -13,13 +13,12 @@ export default function Signup() {
 
   return (
     <Layout>
-      <section className="py-16 bg-background min-h-[70vh] flex items-center">
+      <section className="pt-24 pb-16 bg-background min-h-[70vh] flex items-center">
         <div className="container">
           <div className="max-w-md mx-auto">
             <div className="bg-card rounded-2xl p-8 shadow-card">
               {/* Logo */}
               <div className="text-center mb-8">
-                <img src={logo} alt="Kuppam Organics" className="h-20 w-20 mx-auto mb-4" />
                 <h1 className="font-heading text-2xl font-bold text-foreground">
                   Create Account
                 </h1>

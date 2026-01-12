@@ -10,7 +10,7 @@ export default function Cart() {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container py-20 text-center">
+        <div className="container pt-32 pb-20 text-center">
           <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground/50 mb-6" />
           <h1 className="font-heading text-2xl font-bold mb-4">Your cart is empty</h1>
           <p className="text-muted-foreground mb-8">
@@ -29,7 +29,7 @@ export default function Cart() {
   return (
     <Layout>
       {/* Header */}
-      <div className="bg-card border-b border-border">
+      <div className="bg-card border-b border-border pt-24">
         <div className="container py-4">
           <Link
             to="/products"
@@ -117,7 +117,7 @@ export default function Cart() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-card rounded-2xl p-6 shadow-card sticky top-24">
+              <div className="bg-card rounded-2xl p-6 shadow-card sticky top-28">
                 <h2 className="font-heading text-xl font-semibold mb-6">Order Summary</h2>
 
                 <div className="space-y-3 mb-6">

@@ -23,7 +23,7 @@ export default function Products() {
   return (
     <Layout>
       {/* Compact Hero */}
-      <section className="bg-primary text-primary-foreground py-8 md:py-10">
+      <section className="bg-primary text-primary-foreground pt-24 pb-8 md:pb-10">
         <div className="container text-center">
           <h1 className="font-heading text-2xl md:text-3xl font-bold mb-2">
             Our Organic Products

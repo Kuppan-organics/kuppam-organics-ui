@@ -53,7 +53,7 @@ export default function StorySection() {
               <Link to="/about">
                 <Button 
                   variant="outline" 
-                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 rounded-full px-8 py-6 text-lg group"
+                  className="border-2 border-primary-foreground/60 bg-primary-foreground/10 backdrop-blur-sm text-primary-foreground hover:bg-primary-foreground/20 hover:border-primary-foreground rounded-full px-8 py-6 text-lg group font-semibold shadow-lg"
                 >
                   Read Our Full Story
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -85,18 +85,6 @@ export default function StorySection() {
                   <p className="text-sm text-primary-foreground/60">Founder, Kuppam Organics</p>
                 </div>
               </div>
-            </motion.div>
-
-            {/* Stats floating card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="absolute -bottom-8 -left-8 bg-gold text-gold-foreground rounded-2xl p-6 shadow-xl"
-            >
-              <div className="text-4xl font-heading font-bold mb-1">200+</div>
-              <div className="text-sm">Partner Farmers</div>
             </motion.div>
           </div>
         </div>
