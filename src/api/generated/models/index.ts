@@ -35,6 +35,7 @@ export * from './orderItem';
 export * from './orderPaymentStatus';
 export * from './orderShippingAddress';
 export * from './orderStatus';
+export * from './orderStatusTimelineItem';
 export * from './postApiAuthLoginBody';
 export * from './postApiAuthRegisterBody';
 export * from './postApiCart200';

@@ -10,6 +10,8 @@ import {
 } from '@/api/generated/cart/cart';
 import { CartItem, Product } from '@/lib/types';
 import type { CartItem as ApiCartItem } from '@/api/generated/models';
+import { queryConfig } from '@/lib/queryConfig';
+import { toast } from 'sonner';
 
 const LOCAL_STORAGE_CART_KEY = 'kuppam_cart';
 
@@ -36,7 +38,7 @@ const mapApiCartItemToCartItem = (apiItem: ApiCartItem, index: number): CartItem
     description: apiItem.product.description,
     price: apiItem.product.discountedPrice || apiItem.product.price,
     image: apiItem.product.images?.[0] || '/placeholder.svg',
-    category: apiItem.product.category.toLowerCase(),
+    category: apiItem.product.category?.toLowerCase() || "uncategorized",
     weight: '1 kg',
     inStock: (apiItem.product.stock || 0) > 0,
     quantity: apiItem.quantity || 1,
@@ -81,9 +83,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [token]);
 
-  // Fetch cart from API (only if user is logged in)
+  // Fetch cart from API (only if user is logged in) with optimized caching
   const { data: cartData, isLoading: apiLoading } = useGetApiCart({
-    query: { enabled: !!token },
+    query: { 
+      enabled: !!token,
+      ...queryConfig.cart,
+    },
   });
 
   const addToCartMutation = usePostApiCart({
@@ -106,6 +111,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     mutation: {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetApiCartQueryKey() });
+        toast.success('Item removed from cart');
+      },
+      onError: (error) => {
+        console.error('Failed to remove item from cart:', error);
+        toast.error('Failed to remove item. Please try again.');
       },
     },
   });
@@ -237,6 +247,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (productId: string) => {
       if (token) {
         // User is logged in - use API
+        // The API uses product ID as the itemId for cart items
         removeCartItemMutation.mutate({ itemId: productId });
       } else {
         // User is not logged in - use localStorage
@@ -245,6 +256,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           saveLocalStorageCart(newItems);
           return newItems;
         });
+        toast.success('Item removed from cart');
       }
     },
     [token, removeCartItemMutation]

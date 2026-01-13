@@ -11,9 +11,10 @@ export type PutApiOrdersIdStatusBodyStatus = typeof PutApiOrdersIdStatusBodyStat
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PutApiOrdersIdStatusBodyStatus = {
-  pending: 'pending',
-  processing: 'processing',
-  shipped: 'shipped',
+  placed: 'placed',
+  accepted: 'accepted',
+  packing: 'packing',
+  sent_to_delivery: 'sent_to_delivery',
   delivered: 'delivered',
   cancelled: 'cancelled',
 } as const;

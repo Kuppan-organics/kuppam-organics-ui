@@ -12,19 +12,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { useGetApiAuthProfile } from "@/api/generated/authentication/authentication";
 import { useGetApiOrders } from "@/api/generated/orders/orders";
+import { queryConfig } from "@/lib/queryConfig";
 import { Loader2 } from "lucide-react";
 import type { Order, UserAddress } from "@/api/generated/models";
 
 const statusLabels: Record<string, string> = {
-  pending: "Processing",
-  shipped: "Shipped",
+  placed: "Placed",
+  accepted: "Accepted",
+  packing: "Packing",
+  sent_to_delivery: "Out for Delivery",
   delivered: "Delivered",
   cancelled: "Cancelled",
+  // Legacy statuses for backward compatibility
+  pending: "Processing",
+  shipped: "Shipped",
 };
 
 export default function Dashboard() {
-  const { data: profileData, isLoading: profileLoading } = useGetApiAuthProfile();
-  const { data: ordersData, isLoading: ordersLoading } = useGetApiOrders();
+  const { data: profileData, isLoading: profileLoading } = useGetApiAuthProfile({
+    query: {
+      ...queryConfig.userProfile,
+    },
+  });
+  const { data: ordersData, isLoading: ordersLoading } = useGetApiOrders({
+    query: {
+      ...queryConfig.orders,
+    },
+  });
 
   const user = profileData?.user;
   const orders = ordersData?.orders || [];
@@ -165,17 +179,20 @@ export default function Dashboard() {
               {recentOrders.length > 0 ? (
                 recentOrders.map((order: Order) => {
                   const itemCount = getOrderItemCount(order);
-                  const orderDate = order.id ? new Date().toLocaleDateString('en-US', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                  }) : 'N/A';
                   const status = order.status || 'pending';
+                  
+                  const orderDate = order.statusTimeline && order.statusTimeline.length > 0
+                    ? new Date(order.statusTimeline[0].timestamp || '').toLocaleDateString('en-US', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                      })
+                    : 'N/A';
                   
                   return (
                     <TableRow key={order.id}>
                       <TableCell className="font-medium text-foreground">
-                        {order.id || 'N/A'}
+                        {order.orderNumber || order.id || 'N/A'}
                       </TableCell>
                       <TableCell className="text-foreground">{orderDate}</TableCell>
                       <TableCell className="text-foreground">

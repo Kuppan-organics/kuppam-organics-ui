@@ -6,10 +6,15 @@ import { useGetApiOrders } from "@/api/generated/orders/orders";
 import type { Order } from "@/api/generated/models";
 
 const statusConfig: Record<string, { icon: typeof Package; label: string; color: string }> = {
-  pending: { icon: Package, label: "Processing", color: "text-secondary" },
-  shipped: { icon: Truck, label: "Shipped", color: "text-gold" },
+  placed: { icon: Package, label: "Placed", color: "text-secondary" },
+  accepted: { icon: Package, label: "Accepted", color: "text-secondary" },
+  packing: { icon: Package, label: "Packing", color: "text-secondary" },
+  sent_to_delivery: { icon: Truck, label: "Out for Delivery", color: "text-gold" },
   delivered: { icon: CheckCircle, label: "Delivered", color: "text-accent" },
   cancelled: { icon: Package, label: "Cancelled", color: "text-destructive" },
+  // Legacy statuses for backward compatibility
+  pending: { icon: Package, label: "Processing", color: "text-secondary" },
+  shipped: { icon: Truck, label: "Shipped", color: "text-gold" },
 };
 
 export default function ProfileOrders() {
@@ -42,14 +47,9 @@ export default function ProfileOrders() {
       ) : orders.length > 0 ? (
         <div className="space-y-6">
           {orders.map((order: Order) => {
-            const orderStatus = (order.status || 'pending').toLowerCase();
-            const status = statusConfig[orderStatus] || statusConfig.pending;
+            const orderStatus = (order.status || 'pending') as string;
+            const status = statusConfig[orderStatus] || statusConfig.pending || statusConfig.placed;
             const StatusIcon = status.icon;
-            const orderDate = order.id ? new Date().toLocaleDateString('en-IN', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric'
-            }) : 'N/A';
 
             return (
               <Card
@@ -63,7 +63,13 @@ export default function ProfileOrders() {
                         {order.id || 'N/A'}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Ordered on {orderDate}
+                        {order.statusTimeline && order.statusTimeline.length > 0
+                          ? `Ordered on ${new Date(order.statusTimeline[0].timestamp || '').toLocaleDateString('en-IN', { 
+                              day: 'numeric', 
+                              month: 'long', 
+                              year: 'numeric' 
+                            })}`
+                          : 'Order date not available'}
                       </p>
                     </div>
                     <div
@@ -75,19 +81,26 @@ export default function ProfileOrders() {
                   </div>
 
                   <div className="border-t border-border pt-4">
-                    {order.items?.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between py-2 text-foreground"
-                      >
-                        <span className="text-muted-foreground">
-                          {item.product?.name || 'Product'} × {item.quantity || 1}
-                        </span>
-                        <span>
-                          ₹{((item.product?.discountedPrice || item.product?.price || 0) * (item.quantity || 1)).toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
+                    {order.items?.map((item, index) => {
+                      const itemPrice = item.price || 0;
+                      const itemDiscount = item.discount || 0;
+                      const finalPrice = itemDiscount > 0 
+                        ? itemPrice * (1 - itemDiscount / 100) 
+                        : itemPrice;
+                      return (
+                        <div
+                          key={index}
+                          className="flex justify-between py-2 text-foreground"
+                        >
+                          <span className="text-muted-foreground">
+                            {item.name || 'Product'} × {item.quantity || 1}
+                          </span>
+                          <span>
+                            ₹{(finalPrice * (item.quantity || 1)).toFixed(2)}
+                          </span>
+                        </div>
+                      );
+                    })}
                     <div className="flex justify-between pt-3 border-t border-border mt-2 font-semibold text-foreground">
                       <span>Total</span>
                       <span>₹{order.totalAmount?.toFixed(2) || '0.00'}</span>

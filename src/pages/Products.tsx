@@ -18,11 +18,22 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Filter,
+  ChevronDown,
 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product/ProductCard";
-import { useGetApiProducts, useGetApiProductsCategories } from "@/api/generated/products/products";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  useGetApiProducts,
+  useGetApiProductsCategories,
+} from "@/api/generated/products/products";
+import { queryConfig } from "@/lib/queryConfig";
 import caresole from "@/assets/caresole.png";
 import caresole1 from "@/assets/caresole1.png";
 import caresole3 from "@/assets/caresole3.png";
@@ -83,7 +94,7 @@ const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
     price: apiProduct.discountedPrice || apiProduct.price,
     originalPrice: apiProduct.discountedPrice ? apiProduct.price : undefined,
     image: apiProduct.images?.[0] || "/placeholder.svg",
-    category: apiProduct.category.toLowerCase(),
+    category: apiProduct.category?.toLowerCase() || "uncategorized",
     weight: "1 kg", // Default weight, can be updated if API provides it
     inStock: (apiProduct.stock || 0) > 0,
   };
@@ -93,14 +104,31 @@ export default function Products() {
   const [selectedCategory, setSelectedCategory] =
     useState<string>("vegetables");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Fetch products from API
-  const { data: productsData, isLoading: productsLoading, error: productsError } = useGetApiProducts({
-    category: selectedCategory !== "vegetables" ? selectedCategory : undefined,
+  // Fetch products from API with optimized caching
+  const {
+    data: productsData,
+    isLoading: productsLoading,
+    error: productsError,
+  } = useGetApiProducts(
+    {
+      category:
+        selectedCategory !== "vegetables" ? selectedCategory : undefined,
+    },
+    {
+      query: {
+        ...queryConfig.products,
+      },
+    }
+  );
+
+  // Fetch categories from API with long cache time
+  const { data: categoriesData } = useGetApiProductsCategories({
+    query: {
+      ...queryConfig.categories,
+    },
   });
-
-  // Fetch categories from API
-  const { data: categoriesData } = useGetApiProductsCategories();
 
   // Auto-rotate carousel
   useEffect(() => {
@@ -132,50 +160,12 @@ export default function Products() {
   return (
     <Layout>
       <div className="min-h-screen bg-background">
-        {/* Sidebar and Carousel Row */}
+        {/* Mobile Layout: Carousel First, then Categories, then Products */}
+        {/* Desktop Layout: Sidebar and Carousel Side by Side */}
         <div className="flex flex-col lg:flex-row">
-          {/* Left Sidebar - Categories */}
-          <aside className="w-full lg:w-64 bg-card border-r border-border/50 shrink-0 lg:h-[500px] xl:h-[600px]">
-            <div className="p-4 lg:p-6 h-full flex flex-col">
-              <h2 className="font-heading text-lg font-semibold mb-4 text-foreground hidden lg:block">
-                Categories
-              </h2>
-              <div className="space-y-1 flex-1 overflow-y-auto">
-                {categoryItems.map((category) => {
-                  const Icon = category.icon;
-                  const isSelected = selectedCategory === category.id;
-                  return (
-                    <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                        isSelected
-                          ? "bg-accent text-accent-foreground font-medium shadow-sm"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      <Icon
-                        className={`h-4 w-4 ${
-                          isSelected
-                            ? "text-accent-foreground"
-                            : "text-muted-foreground"
-                        }`}
-                      />
-                      <span className="flex-1 text-left">{category.name}</span>
-                    </button>
-                  );
-                })}
-                <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
-                  <Plus className="h-4 w-4" />
-                  <span className="flex-1 text-left">View all Category</span>
-                </button>
-              </div>
-            </div>
-          </aside>
-
-          {/* Main Content - Hero Carousel */}
-          <main className="flex-1">
-            <section className="relative overflow-hidden h-[500px] lg:h-[500px] xl:h-[600px]">
+          {/* Hero Carousel - First on Mobile, Right Side on Desktop */}
+          <main className="flex-1 order-1 lg:order-2">
+            <section className="relative overflow-hidden h-[400px] sm:h-[450px] lg:h-[500px] xl:h-[600px]">
               {/* Background Image */}
               <div className="absolute inset-0">
                 <img
@@ -188,55 +178,55 @@ export default function Products() {
               </div>
 
               {/* Content Overlay */}
-              <div className="relative z-10 container mx-auto px-4 py-8 lg:py-12 h-full flex flex-col justify-center">
-                <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+              <div className="relative z-10 container mx-auto px-4 py-6 sm:py-8 lg:py-12 h-full flex flex-col justify-center">
+                <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
                   {/* Left Content */}
-                  <div className="flex-1 space-y-4 lg:space-y-6 text-center lg:text-left text-white">
-                    <h1 className="font-heading text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight drop-shadow-lg">
+                  <div className="flex-1 space-y-3 sm:space-y-4 lg:space-y-6 text-center lg:text-left text-white">
+                    <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight drop-shadow-lg">
                       {carouselContent[currentSlide].title}
                     </h1>
-                    <h2 className="font-heading text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight drop-shadow-lg">
+                    <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight drop-shadow-lg">
                       {carouselContent[currentSlide].subtitle}
                     </h2>
                     <div className="space-y-2">
-                      <p className="text-sm lg:text-base text-white/90 drop-shadow-md">
+                      <p className="text-xs sm:text-sm lg:text-base text-white/90 drop-shadow-md">
                         {carouselContent[currentSlide].saleText}
                       </p>
-                      <p className="text-2xl lg:text-3xl font-bold text-white drop-shadow-lg">
+                      <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white drop-shadow-lg">
                         {carouselContent[currentSlide].discount}
                       </p>
                     </div>
                     <Button
                       size="lg"
-                      className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold px-6 py-6 text-base lg:text-lg rounded-xl shadow-lg w-fit"
+                      className="bg-gold text-gold-foreground hover:bg-gold/90 font-semibold px-5 py-5 sm:px-6 sm:py-6 text-sm sm:text-base lg:text-lg rounded-xl shadow-lg w-fit mx-auto lg:mx-0"
                     >
                       {carouselContent[currentSlide].buttonText}
-                      <ArrowRight className="ml-2 h-5 w-5" />
+                      <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                     </Button>
                   </div>
 
                   {/* Right side - empty space for content */}
-                  <div className="flex-1"></div>
+                  <div className="flex-1 hidden lg:block"></div>
                 </div>
 
                 {/* Navigation Arrows */}
                 <button
                   onClick={prevSlide}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all z-20"
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-1.5 sm:p-2 transition-all z-20"
                   aria-label="Previous slide"
                 >
-                  <ChevronLeft className="h-6 w-6 text-white" />
+                  <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </button>
                 <button
                   onClick={nextSlide}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all z-20"
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-1.5 sm:p-2 transition-all z-20"
                   aria-label="Next slide"
                 >
-                  <ChevronRight className="h-6 w-6 text-white" />
+                  <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </button>
 
                 {/* Carousel Dots */}
-                <div className="flex justify-center gap-2 mt-6 lg:mt-8">
+                <div className="flex justify-center gap-2 mt-4 sm:mt-6 lg:mt-8">
                   {carouselImages.map((_, index) => (
                     <button
                       key={index}
@@ -253,6 +243,111 @@ export default function Products() {
               </div>
             </section>
           </main>
+
+          {/* Left Sidebar - Categories - Collapsible on Mobile, Always Visible on Desktop */}
+          <aside className="w-full lg:w-64 bg-card border-b lg:border-b-0 lg:border-r border-border/50 shrink-0 order-2 lg:order-1 lg:h-[500px] xl:h-[600px]">
+            {/* Mobile: Collapsible Filter */}
+            <div className="p-4 lg:p-6 h-full flex flex-col">
+              {/* Mobile Collapsible Trigger */}
+              <Collapsible
+                open={isFilterOpen}
+                onOpenChange={setIsFilterOpen}
+                className="lg:hidden"
+              >
+                <CollapsibleTrigger className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors mb-2">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-5 w-5 text-foreground" />
+                    <h2 className="font-heading text-base font-semibold text-foreground">
+                      Categories
+                    </h2>
+                  </div>
+                  <ChevronDown
+                    className={`h-5 w-5 text-foreground transition-transform duration-200 ${
+                      isFilterOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="space-y-1 overflow-y-auto pb-2">
+                    {categoryItems.map((category) => {
+                      const Icon = category.icon;
+                      const isSelected = selectedCategory === category.id;
+                      return (
+                        <button
+                          key={category.id}
+                          onClick={() => {
+                            setSelectedCategory(category.id);
+                            setIsFilterOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                            isSelected
+                              ? "bg-accent text-accent-foreground font-medium shadow-sm"
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          }`}
+                        >
+                          <Icon
+                            className={`h-4 w-4 ${
+                              isSelected
+                                ? "text-accent-foreground"
+                                : "text-muted-foreground"
+                            }`}
+                          />
+                          <span className="flex-1 text-left">
+                            {category.name}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
+                      <Plus className="h-4 w-4" />
+                      <span className="flex-1 text-left">
+                        View all Category
+                      </span>
+                    </button>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Desktop: Always Visible Categories */}
+              <div className="hidden lg:flex flex-col h-full">
+                <h2 className="font-heading text-lg font-semibold mb-4 text-foreground">
+                  Categories
+                </h2>
+                <div className="space-y-1 flex-1 overflow-y-auto">
+                  {categoryItems.map((category) => {
+                    const Icon = category.icon;
+                    const isSelected = selectedCategory === category.id;
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                          isSelected
+                            ? "bg-accent text-accent-foreground font-medium shadow-sm"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <Icon
+                          className={`h-4 w-4 ${
+                            isSelected
+                              ? "text-accent-foreground"
+                              : "text-muted-foreground"
+                          }`}
+                        />
+                        <span className="flex-1 text-left">
+                          {category.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
+                    <Plus className="h-4 w-4" />
+                    <span className="flex-1 text-left">View all Category</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
 
         {/* Products and Service Benefits Section with Continuous Background */}
@@ -285,7 +380,9 @@ export default function Products() {
               {productsLoading ? (
                 <div className="text-center py-12 bg-card rounded-xl border border-border/50">
                   <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground text-sm">Loading products...</p>
+                  <p className="text-muted-foreground text-sm">
+                    Loading products...
+                  </p>
                 </div>
               ) : productsError ? (
                 <div className="text-center py-12 bg-card rounded-xl border border-border/50">

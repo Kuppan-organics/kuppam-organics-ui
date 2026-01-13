@@ -1,14 +1,27 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Minus, Plus, ShoppingCart, Leaf, Truck, Shield, Loader2 } from 'lucide-react';
-import Layout from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
-import ProductCard from '@/components/product/ProductCard';
-import { useGetApiProductsId, useGetApiProducts } from '@/api/generated/products/products';
-import { useCart } from '@/contexts/CartContext';
-import { toast } from '@/hooks/use-toast';
-import type { Product as ApiProduct } from '@/api/generated/models';
-import type { Product } from '@/lib/types';
+import { useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Leaf,
+  Truck,
+  Shield,
+  Loader2,
+} from "lucide-react";
+import Layout from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
+import ProductCard from "@/components/product/ProductCard";
+import {
+  useGetApiProductsId,
+  useGetApiProducts,
+} from "@/api/generated/products/products";
+import { queryConfig } from "@/lib/queryConfig";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "@/hooks/use-toast";
+import type { Product as ApiProduct } from "@/api/generated/models";
+import type { Product } from "@/lib/types";
 
 // Helper function to map API product to local Product type
 const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
@@ -19,7 +32,7 @@ const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
     price: apiProduct.discountedPrice || apiProduct.price,
     originalPrice: apiProduct.discountedPrice ? apiProduct.price : undefined,
     image: apiProduct.images?.[0] || "/placeholder.svg",
-    category: apiProduct.category.toLowerCase(),
+    category: apiProduct.category?.toLowerCase() || "uncategorized",
     weight: "1 kg", // Default weight
     inStock: (apiProduct.stock || 0) > 0,
   };
@@ -29,16 +42,32 @@ export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
+  const navigate = useNavigate();
 
-  // Fetch product details
-  const { data: productData, isLoading, error } = useGetApiProductsId(id || "", {
-    query: { enabled: !!id },
+  // Fetch product details with optimized caching
+  const {
+    data: productData,
+    isLoading,
+    error,
+  } = useGetApiProductsId(id || "", {
+    query: {
+      enabled: !!id,
+      ...queryConfig.productDetails,
+    },
   });
 
-  // Fetch related products
-  const { data: relatedProductsData } = useGetApiProducts({
-    category: productData?.category,
-  });
+  // Fetch related products with caching
+  const { data: relatedProductsData } = useGetApiProducts(
+    {
+      category: productData?.product?.category,
+    },
+    {
+      query: {
+        ...queryConfig.products,
+        enabled: !!productData?.product?.category,
+      },
+    }
+  );
 
   if (isLoading) {
     return (
@@ -51,11 +80,16 @@ export default function ProductDetails() {
     );
   }
 
-  if (error || !productData) {
+  // Extract product from the API response
+  const apiProduct = productData?.product;
+
+  if (!productData || !apiProduct) {
     return (
       <Layout>
         <div className="container pb-20 text-center">
-          <h1 className="font-heading text-2xl font-bold mb-4">Product not found</h1>
+          <h1 className="font-heading text-2xl font-bold mb-4">
+            Product not found
+          </h1>
           <Link to="/products">
             <Button>Back to Products</Button>
           </Link>
@@ -64,10 +98,10 @@ export default function ProductDetails() {
     );
   }
 
-  const product = mapApiProductToProduct(productData);
+  const product = mapApiProductToProduct(apiProduct);
   const relatedProducts = relatedProductsData?.products
     ? relatedProductsData.products
-        .filter((p) => p.category === productData.category && p.id !== id)
+        .filter((p) => p.category === apiProduct.category && p.id !== id)
         .slice(0, 4)
         .map(mapApiProductToProduct)
     : [];
@@ -75,9 +109,21 @@ export default function ProductDetails() {
   const handleAddToCart = () => {
     addItem(product, quantity);
     toast({
-      title: 'Added to Cart',
+      title: "Added to Cart",
       description: `${quantity}x ${product.name} added to your cart.`,
     });
+  };
+
+  const handleBuyNow = () => {
+    addItem(product, quantity);
+    toast({
+      title: "Added to Cart",
+      description: `${quantity}x ${product.name} added to your cart.`,
+    });
+    // Navigate to checkout after a brief delay to ensure cart is updated
+    setTimeout(() => {
+      navigate("/checkout");
+    }, 100);
   };
 
   return (
@@ -103,14 +149,16 @@ export default function ProductDetails() {
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden bg-card shadow-card">
                 <img
-                  src={productData.images?.[0] || product.image}
+                  src={apiProduct.images?.[0] || product.image}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
               </div>
               {product.badge && (
                 <span className="absolute top-4 left-4 px-4 py-2 rounded-full bg-accent text-accent-foreground text-sm font-semibold uppercase">
-                  {product.badge === 'bestseller' ? 'Best Seller' : product.badge}
+                  {product.badge === "bestseller"
+                    ? "Best Seller"
+                    : product.badge}
                 </span>
               )}
             </div>
@@ -137,12 +185,16 @@ export default function ProductDetails() {
                     ₹{product.originalPrice}
                   </span>
                 )}
-                <span className="text-muted-foreground">/ {product.weight}</span>
+                <span className="text-muted-foreground">
+                  / {product.weight}
+                </span>
               </div>
 
               {/* Quantity Selector */}
               <div className="flex items-center gap-4 mb-8">
-                <span className="text-sm font-medium text-muted-foreground">Quantity:</span>
+                <span className="text-sm font-medium text-muted-foreground">
+                  Quantity:
+                </span>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -151,7 +203,9 @@ export default function ProductDetails() {
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="w-12 text-center font-medium text-lg">{quantity}</span>
+                  <span className="w-12 text-center font-medium text-lg">
+                    {quantity}
+                  </span>
                   <Button
                     variant="outline"
                     size="icon"
@@ -176,6 +230,7 @@ export default function ProductDetails() {
                   size="lg"
                   variant="outline"
                   className="flex-1 py-6 text-lg rounded-xl border-primary text-primary hover:bg-primary/5"
+                  onClick={handleBuyNow}
                 >
                   Buy Now
                 </Button>
@@ -185,15 +240,21 @@ export default function ProductDetails() {
               <div className="grid grid-cols-3 gap-4 p-4 bg-card rounded-xl">
                 <div className="text-center">
                   <Leaf className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <span className="text-xs text-muted-foreground">100% Organic</span>
+                  <span className="text-xs text-muted-foreground">
+                    100% Organic
+                  </span>
                 </div>
                 <div className="text-center">
                   <Truck className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <span className="text-xs text-muted-foreground">Fresh Delivery</span>
+                  <span className="text-xs text-muted-foreground">
+                    Fresh Delivery
+                  </span>
                 </div>
                 <div className="text-center">
                   <Shield className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <span className="text-xs text-muted-foreground">Quality Assured</span>
+                  <span className="text-xs text-muted-foreground">
+                    Quality Assured
+                  </span>
                 </div>
               </div>
 
@@ -202,14 +263,22 @@ export default function ProductDetails() {
                 <div className="mt-8 space-y-4">
                   {product.nutritionalInfo && (
                     <div>
-                      <h3 className="font-heading font-semibold mb-2">Nutritional Benefits</h3>
-                      <p className="text-muted-foreground text-sm">{product.nutritionalInfo}</p>
+                      <h3 className="font-heading font-semibold mb-2">
+                        Nutritional Benefits
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        {product.nutritionalInfo}
+                      </p>
                     </div>
                   )}
                   {product.farmingMethod && (
                     <div>
-                      <h3 className="font-heading font-semibold mb-2">Farming Method</h3>
-                      <p className="text-muted-foreground text-sm">{product.farmingMethod}</p>
+                      <h3 className="font-heading font-semibold mb-2">
+                        Farming Method
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        {product.farmingMethod}
+                      </p>
                     </div>
                   )}
                 </div>

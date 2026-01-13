@@ -38,7 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <motion.div
         whileHover={{ y: -8 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="bg-card rounded-2xl overflow-hidden shadow-soft hover:shadow-elevated transition-shadow duration-300 border border-border/30"
+        className="bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-elevated transition-shadow duration-300 border border-border/30"
       >
         {/* Image */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">

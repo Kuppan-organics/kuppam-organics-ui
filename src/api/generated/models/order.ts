@@ -9,6 +9,7 @@ import type { OrderItem } from './orderItem';
 import type { OrderShippingAddress } from './orderShippingAddress';
 import type { OrderStatus } from './orderStatus';
 import type { OrderPaymentStatus } from './orderPaymentStatus';
+import type { OrderStatusTimelineItem } from './orderStatusTimelineItem';
 
 export interface Order {
   id?: string;
@@ -16,6 +17,12 @@ export interface Order {
   items?: OrderItem[];
   totalAmount?: number;
   shippingAddress?: OrderShippingAddress;
+  /** Unique order number (e.g., */
+  orderNumber?: string;
   status?: OrderStatus;
   paymentStatus?: OrderPaymentStatus;
+  /** Expected delivery date (set when status is sent_to_delivery) */
+  expectedDeliveryDate?: string;
+  /** Timeline of status changes */
+  statusTimeline?: OrderStatusTimelineItem[];
 }

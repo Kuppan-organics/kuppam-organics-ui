@@ -11,4 +11,8 @@ import type { PutApiOrdersIdStatusBodyPaymentStatus } from './putApiOrdersIdStat
 export type PutApiOrdersIdStatusBody = {
   status?: PutApiOrdersIdStatusBodyStatus;
   paymentStatus?: PutApiOrdersIdStatusBodyPaymentStatus;
+  /** Expected delivery date */
+  expectedDeliveryDate?: string;
+  /** Optional note for the status change */
+  note?: string;
 };
