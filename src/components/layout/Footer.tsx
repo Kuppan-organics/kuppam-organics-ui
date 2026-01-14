@@ -1,7 +1,16 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Share2, Headphones } from 'lucide-react';
-import logo from '@/assets/logo.png';
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Mail,
+  Phone,
+  MapPin,
+  Share2,
+  Headphones,
+} from "lucide-react";
+import logo from "@/assets/kuppam_organics-logo.png";
 
 export default function Footer() {
   return (
@@ -17,12 +26,22 @@ export default function Footer() {
             transition={{ duration: 0.5 }}
             className="lg:col-span-1"
           >
-            <Link to="/" className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="Kuppam Organics" className="h-10 w-10 object-contain" />
-              <span className="font-heading text-lg font-bold text-primary">Kuppam Organics</span>
+            <Link
+              to="/"
+              className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4"
+            >
+              <img
+                src={logo}
+                alt="Kuppam Organics"
+                className="w-[120px] h-[120px] sm:w-[120px] sm:h-[120px] md:w-[120px] md:h-[120px] object-contain flex-shrink-0"
+              />
+              <span className="font-heading text-lg font-bold text-primary">
+                Kuppam Organics
+              </span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Bringing the purity of traditional Indian farming and organic wellness to your doorstep since 2017.
+              Bringing the purity of traditional Indian farming and organic
+              wellness to your doorstep since 2017.
             </p>
           </motion.div>
 
@@ -33,12 +52,42 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">Quick Links</h4>
+            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">
+              Quick Links
+            </h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link to="/products" className="hover:text-primary transition-colors">Shop All</Link></li>
-              <li><Link to="/about" className="hover:text-primary transition-colors">Our Farmers</Link></li>
-              <li><Link to="/about#sustainability" className="hover:text-primary transition-colors">Sustainability</Link></li>
-              <li><Link to="/contact" className="hover:text-primary transition-colors">Wholesale</Link></li>
+              <li>
+                <Link
+                  to="/products"
+                  className="hover:text-primary transition-colors"
+                >
+                  Shop All
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="hover:text-primary transition-colors"
+                >
+                  Our Farmers
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about#sustainability"
+                  className="hover:text-primary transition-colors"
+                >
+                  Sustainability
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="hover:text-primary transition-colors"
+                >
+                  Wholesale
+                </Link>
+              </li>
             </ul>
           </motion.div>
 
@@ -49,12 +98,42 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">Support</h4>
+            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">
+              Support
+            </h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link to="/shipping" className="hover:text-primary transition-colors">Shipping Policy</Link></li>
-              <li><Link to="/returns" className="hover:text-primary transition-colors">Returns & Refunds</Link></li>
-              <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
-              <li><Link to="/faq" className="hover:text-primary transition-colors">FAQs</Link></li>
+              <li>
+                <Link
+                  to="/shipping"
+                  className="hover:text-primary transition-colors"
+                >
+                  Shipping Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/returns"
+                  className="hover:text-primary transition-colors"
+                >
+                  Returns & Refunds
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="hover:text-primary transition-colors"
+                >
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/faq"
+                  className="hover:text-primary transition-colors"
+                >
+                  FAQs
+                </Link>
+              </li>
             </ul>
           </motion.div>
 
@@ -65,7 +144,9 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">Follow Us</h4>
+            <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">
+              Follow Us
+            </h4>
             <div className="flex gap-3">
               <motion.a
                 whileHover={{ scale: 1.1 }}

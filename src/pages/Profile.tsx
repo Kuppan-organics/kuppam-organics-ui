@@ -86,7 +86,7 @@ export default function Profile() {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1">
+            <main className="flex-1 ">
               <Outlet />
             </main>
           </div>

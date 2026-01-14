@@ -78,7 +78,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-6">
       {/* Top Row: User Profile and Billing Address */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* User Profile Card */}

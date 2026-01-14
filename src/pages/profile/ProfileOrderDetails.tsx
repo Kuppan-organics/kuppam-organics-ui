@@ -163,7 +163,7 @@ export default function ProfileOrderDetails() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 pt-6">
         <Card className="bg-card border-border/50 shadow-soft">
           <CardContent className="pt-12 pb-12 text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
@@ -176,7 +176,7 @@ export default function ProfileOrderDetails() {
 
   if (error || !order) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 pt-6">
         <Card className="bg-card border-border/50 shadow-soft">
           <CardContent className="pt-12 pb-12 text-center">
             <p className="text-destructive mb-4">Failed to load order details.</p>
@@ -193,7 +193,7 @@ export default function ProfileOrderDetails() {
   const status = statusConfig[orderStatus] || statusConfig.pending || statusConfig.placed;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" asChild>
