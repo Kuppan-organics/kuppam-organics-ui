@@ -78,10 +78,10 @@ export default function StorySection() {
               </blockquote>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <span className="text-gold font-heading font-bold text-xl">R</span>
+                  <span className="text-gold font-heading font-bold text-xl">S</span>
                 </div>
                 <div>
-                  <p className="font-semibold">Ramesh Kumar</p>
+                  <p className="font-semibold">Subbu</p>
                   <p className="text-sm text-primary-foreground/60">Founder, Kuppam Organics</p>
                 </div>
               </div>

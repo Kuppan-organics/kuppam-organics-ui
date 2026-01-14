@@ -22,7 +22,7 @@ export default function Footer() {
               <span className="font-heading text-lg font-bold text-primary">Kuppam Organics</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Bringing the purity of traditional Indian farming and organic wellness to your doorstep since 2012.
+              Bringing the purity of traditional Indian farming and organic wellness to your doorstep since 2017.
             </p>
           </motion.div>
 
@@ -91,7 +91,7 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="bg-primary/5 border-t border-border">
         <div className="container py-6 text-center text-sm text-muted-foreground">
-          <p>© 2024 KUPPAM ORGANICS. SOIL TO SOUL.</p>
+          <p>© 2026 KUPPAM ORGANICS. SOIL TO SOUL.</p>
         </div>
       </div>
     </footer>
