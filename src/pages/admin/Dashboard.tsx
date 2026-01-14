@@ -1,11 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetApiAdminStats } from "@/api/generated/admin/admin";
-import { Loader2, Package, ShoppingCart, Users, TrendingUp } from "lucide-react";
+import {
+  Loader2,
+  Package,
+  ShoppingCart,
+  Users,
+  TrendingUp,
+} from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { queryConfig } from "@/lib/queryConfig";
 
 export default function AdminDashboard() {
-  const { data: statsData, isLoading, error } = useGetApiAdminStats({
+  const {
+    data: statsData,
+    isLoading,
+    error,
+  } = useGetApiAdminStats({
     query: {
       ...queryConfig.admin,
     },
@@ -21,7 +31,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (error) {
+  if (!statsData && !isLoading) {
     return (
       <Layout>
         <div className="container py-8">
@@ -35,7 +45,7 @@ export default function AdminDashboard() {
     );
   }
 
-  const stats = statsData || {};
+  const stats = statsData?.stats || {};
 
   const statCards = [
     {
@@ -58,7 +68,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Total Revenue",
-      value: `₹${(stats.totalRevenue || 0).toLocaleString('en-IN')}`,
+      value: `₹${(stats.revenue || 0).toLocaleString("en-IN")}`,
       icon: TrendingUp,
       color: "text-gold",
     },
@@ -68,8 +78,12 @@ export default function AdminDashboard() {
     <Layout>
       <div className="container py-8">
         <div className="mb-8">
-          <h1 className="font-heading text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Overview of your e-commerce platform</p>
+          <h1 className="font-heading text-3xl font-bold mb-2">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Overview of your e-commerce platform
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -78,7 +92,9 @@ export default function AdminDashboard() {
             return (
               <Card key={stat.title}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    {stat.title}
+                  </CardTitle>
                   <Icon className={`h-4 w-4 ${stat.color}`} />
                 </CardHeader>
                 <CardContent>
@@ -90,6 +106,41 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Orders by Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {stats.ordersByStatus &&
+              Array.isArray(stats.ordersByStatus) &&
+              stats.ordersByStatus.length > 0 ? (
+                <div className="space-y-3">
+                  {(
+                    stats.ordersByStatus as unknown as Array<{
+                      _id: string;
+                      count: number;
+                    }>
+                  ).map((item) => (
+                    <div
+                      key={item._id}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="text-sm font-medium capitalize">
+                        {item._id}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No order status data available
+                </p>
+              )}
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
