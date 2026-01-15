@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Eye, Plus } from 'lucide-react';
+import { ShoppingCart, Eye, Plus, Zap } from 'lucide-react';
 import { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
@@ -19,6 +19,8 @@ const badgeStyles = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,6 +29,37 @@ export default function ProductCard({ product }: ProductCardProps) {
     toast({
       title: 'Added to Cart',
       description: `${product.name} has been added to your cart.`,
+    });
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Check if user is logged in
+    if (!token) {
+      toast({
+        title: "Login Required",
+        description: "Please login to proceed with buy now.",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { from: `/product/${product.id}`, buyNow: true } });
+      return;
+    }
+
+    // Navigate to checkout with buy now info
+    navigate("/checkout", {
+      state: {
+        buyNow: true,
+        productId: product.id,
+        quantity: 1,
+        product: {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        },
+      },
     });
   };
 
@@ -105,19 +138,34 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </span>
               )}
             </div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-primary/30 text-primary hover:bg-primary/5 text-xs h-8 px-4 rounded-full"
-                onClick={handleAddToCart}
+            <div className="flex gap-2">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Add to Cart
-              </Button>
-            </motion.div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-primary/30 text-primary hover:bg-primary/5 text-xs h-8 px-3 rounded-full"
+                  onClick={handleAddToCart}
+                >
+                  Add to Cart
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  size="sm"
+                  className="bg-gold hover:bg-gold/90 text-gold-foreground text-xs h-8 px-3 rounded-full"
+                  onClick={handleBuyNow}
+                >
+                  <Zap className="h-3 w-3 mr-1" />
+                  Buy Now
+                </Button>
+              </motion.div>
+            </div>
           </div>
         </div>
       </motion.div>

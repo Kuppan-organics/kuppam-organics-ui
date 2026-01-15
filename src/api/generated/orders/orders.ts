@@ -29,6 +29,8 @@ import type {
   GetApiOrdersId200,
   PostApiOrders201,
   PostApiOrdersBody,
+  PostApiOrdersBuyNow201,
+  PostApiOrdersBuyNowBody,
   PutApiOrdersIdStatusBody
 } from '.././models';
 
@@ -286,6 +288,70 @@ export function useGetApiOrdersId<TData = Awaited<ReturnType<typeof getApiOrders
 
 
 /**
+ * @summary Buy now - Create order directly from product (without cart)
+ */
+export const postApiOrdersBuyNow = (
+    postApiOrdersBuyNowBody: PostApiOrdersBuyNowBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PostApiOrdersBuyNow201>(
+      {url: `/api/orders/buy-now`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiOrdersBuyNowBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getPostApiOrdersBuyNowMutationOptions = <TError = void | void | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiOrdersBuyNow>>, TError,{data: PostApiOrdersBuyNowBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiOrdersBuyNow>>, TError,{data: PostApiOrdersBuyNowBody}, TContext> => {
+
+const mutationKey = ['postApiOrdersBuyNow'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiOrdersBuyNow>>, {data: PostApiOrdersBuyNowBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiOrdersBuyNow(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiOrdersBuyNowMutationResult = NonNullable<Awaited<ReturnType<typeof postApiOrdersBuyNow>>>
+    export type PostApiOrdersBuyNowMutationBody = PostApiOrdersBuyNowBody
+    export type PostApiOrdersBuyNowMutationError = void | void | void
+
+    /**
+ * @summary Buy now - Create order directly from product (without cart)
+ */
+export const usePostApiOrdersBuyNow = <TError = void | void | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiOrdersBuyNow>>, TError,{data: PostApiOrdersBuyNowBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiOrdersBuyNow>>,
+        TError,
+        {data: PostApiOrdersBuyNowBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiOrdersBuyNowMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * @summary Update order status (Admin only)
  */
 export const putApiOrdersIdStatus = (

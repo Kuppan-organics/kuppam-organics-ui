@@ -43,6 +43,7 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   // Fetch product details with optimized caching
   const {
@@ -115,15 +116,42 @@ export default function ProductDetails() {
   };
 
   const handleBuyNow = () => {
-    addItem(product, quantity);
-    toast({
-      title: "Added to Cart",
-      description: `${quantity}x ${product.name} added to your cart.`,
+    // Check if user is logged in
+    if (!token) {
+      toast({
+        title: "Login Required",
+        description: "Please login to proceed with buy now.",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { from: `/product/${id}`, buyNow: true } });
+      return;
+    }
+
+    // Validate product ID
+    if (!id) {
+      toast({
+        title: "Error",
+        description: "Product ID is missing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Navigate to checkout with buy now info
+    // The checkout page will handle calling the buy now API after collecting shipping address
+    navigate("/checkout", {
+      state: {
+        buyNow: true,
+        productId: id,
+        quantity: quantity,
+        product: {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        },
+      },
     });
-    // Navigate to checkout after a brief delay to ensure cart is updated
-    setTimeout(() => {
-      navigate("/checkout");
-    }, 100);
   };
 
   return (

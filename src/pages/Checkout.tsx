@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { usePostApiOrders } from "@/api/generated/orders/orders";
+import { usePostApiOrders, usePostApiOrdersBuyNow } from "@/api/generated/orders/orders";
 import { useGetApiAuthProfile } from "@/api/generated/authentication/authentication";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2 } from "lucide-react";
@@ -24,10 +24,27 @@ interface ShippingForm {
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const token = localStorage.getItem("token");
+  
+  // Check if this is a buy now flow
+  const buyNowState = location.state as {
+    buyNow?: boolean;
+    productId?: string;
+    quantity?: number;
+    product?: { id: string; name: string; price: number; image: string };
+  } | null;
+  
+  const isBuyNow = buyNowState?.buyNow || false;
+  const buyNowProduct = buyNowState?.product;
+  const buyNowProductId = buyNowState?.productId;
+  const buyNowQuantity = buyNowState?.quantity || 1;
+  
+  // Calculate buy now total
+  const buyNowTotal = buyNowProduct ? buyNowProduct.price * buyNowQuantity : 0;
 
   const [form, setForm] = useState<ShippingForm>({
     firstName: "",
@@ -86,6 +103,19 @@ export default function Checkout() {
     },
   });
 
+  const buyNowMutation = usePostApiOrdersBuyNow({
+    mutation: {
+      onSuccess: (data) => {
+        toast.success("Order placed successfully!");
+        setOrderPlaced(true);
+        setOrderId(data.order?.orderNumber || data.order?.id || null);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || "Failed to place order. Please try again.");
+      },
+    },
+  });
+
   const validateForm = (): boolean => {
     const newErrors: Partial<ShippingForm> = {};
 
@@ -140,25 +170,55 @@ export default function Checkout() {
       return;
     }
 
-    createOrderMutation.mutate({
-      data: {
-        shippingAddress: {
-          street: `${form.firstName} ${form.lastName}, ${form.street}`,
-          city: form.city,
-          state: form.state,
-          zipCode: form.pincode,
-          country: "India",
+    const shippingAddress = {
+      street: `${form.firstName} ${form.lastName}, ${form.street}`,
+      city: form.city,
+      state: form.state,
+      zipCode: form.pincode,
+      country: "India",
+    };
+
+    if (isBuyNow && buyNowProductId) {
+      // Use buy now API
+      buyNowMutation.mutate({
+        data: {
+          productId: buyNowProductId,
+          quantity: buyNowQuantity,
+          shippingAddress,
         },
-      },
-    });
+      });
+    } else {
+      // Use regular cart order API
+      createOrderMutation.mutate({
+        data: {
+          shippingAddress,
+        },
+      });
+    }
   };
 
-  if (items.length === 0 && !orderPlaced) {
+  if (!isBuyNow && items.length === 0 && !orderPlaced) {
     return (
       <Layout>
         <div className="container pb-20 text-center">
           <h1 className="font-heading text-2xl font-bold mb-4">
             No items in cart
+          </h1>
+          <Link to="/products">
+            <Button>Continue Shopping</Button>
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
+
+  // If buy now but no product info, redirect back
+  if (isBuyNow && !buyNowProduct && !buyNowProductId) {
+    return (
+      <Layout>
+        <div className="container pb-20 text-center">
+          <h1 className="font-heading text-2xl font-bold mb-4">
+            Invalid buy now request
           </h1>
           <Link to="/products">
             <Button>Continue Shopping</Button>
@@ -379,32 +439,53 @@ export default function Checkout() {
                 </h2>
 
                 <div className="space-y-4 mb-6">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3">
+                  {isBuyNow && buyNowProduct ? (
+                    <div className="flex items-center gap-3">
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={buyNowProduct.image}
+                        alt={buyNowProduct.name}
                         className="w-12 h-12 object-cover rounded-lg"
                       />
                       <div className="flex-1">
                         <p className="text-sm font-medium line-clamp-1">
-                          {item.name}
+                          {buyNowProduct.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Qty: {item.quantity}
+                          Qty: {buyNowQuantity}
                         </p>
                       </div>
                       <p className="text-sm font-medium">
-                        ₹{item.price * item.quantity}
+                        ₹{buyNowTotal}
                       </p>
                     </div>
-                  ))}
+                  ) : (
+                    items.map((item) => (
+                      <div key={item.id} className="flex items-center gap-3">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded-lg"
+                        />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium line-clamp-1">
+                            {item.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
+                        <p className="text-sm font-medium">
+                          ₹{item.price * item.quantity}
+                        </p>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <div className="border-t border-border pt-4 space-y-3 mb-6">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
-                    <span>₹{totalPrice}</span>
+                    <span>₹{isBuyNow ? buyNowTotal : totalPrice}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Delivery</span>
@@ -412,16 +493,16 @@ export default function Checkout() {
                   </div>
                   <div className="border-t border-border pt-3 flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>₹{totalPrice}</span>
+                    <span>₹{isBuyNow ? buyNowTotal : totalPrice}</span>
                   </div>
                 </div>
 
                 <Button
                   className="w-full bg-gold hover:bg-gold/90 text-gold-foreground font-semibold py-6 text-lg rounded-xl"
                   onClick={handlePlaceOrder}
-                  disabled={createOrderMutation.isPending}
+                  disabled={isBuyNow ? buyNowMutation.isPending : createOrderMutation.isPending}
                 >
-                  {createOrderMutation.isPending ? (
+                  {(isBuyNow ? buyNowMutation.isPending : createOrderMutation.isPending) ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                       Placing Order...
