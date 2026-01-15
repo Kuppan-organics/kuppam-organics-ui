@@ -3,7 +3,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 // Get base URL - use import.meta.env for Vite runtime
 const getBaseURL = () => {
  
-  return "http://localhost:3000";
+  return "https://kuppams-backend.vercel.app";
 };
 
 export const AXIOS_INSTANCE = axios.create({
