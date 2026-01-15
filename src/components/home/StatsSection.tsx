@@ -5,7 +5,7 @@ const stats = [
   { value: 5000, suffix: '+', label: 'Happy Families' },
   { value: 200, suffix: '+', label: 'Partner Farmers' },
   { value: 150, suffix: '+', label: 'Organic Products' },
-  { value: 12, suffix: '', label: 'Years of Trust' },
+  { value: 9, suffix: '', label: 'Years of Trust' },
 ];
 
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {

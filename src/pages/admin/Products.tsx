@@ -146,9 +146,27 @@ export default function AdminProducts() {
       },
       onError: (error: any) => {
         isSubmittingRef.current = false;
+        // Extract error messages from API response
+        let errorMessage = "An error occurred";
+        const errorData = error.response?.data;
+
+        if (
+          errorData?.errors &&
+          Array.isArray(errorData.errors) &&
+          errorData.errors.length > 0
+        ) {
+          // Extract all error messages from the errors array
+          const messages = errorData.errors
+            .map((err: any) => err.msg || err.message)
+            .filter(Boolean);
+          errorMessage = messages.join(". ") || errorMessage;
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
+        }
+
         toast({
           title: "Failed to create product",
-          description: error.response?.data?.message || "An error occurred",
+          description: errorMessage,
           variant: "destructive",
         });
       },
@@ -177,9 +195,27 @@ export default function AdminProducts() {
       },
       onError: (error: any) => {
         isSubmittingRef.current = false;
+        // Extract error messages from API response
+        let errorMessage = "An error occurred";
+        const errorData = error.response?.data;
+
+        if (
+          errorData?.errors &&
+          Array.isArray(errorData.errors) &&
+          errorData.errors.length > 0
+        ) {
+          // Extract all error messages from the errors array
+          const messages = errorData.errors
+            .map((err: any) => err.msg || err.message)
+            .filter(Boolean);
+          errorMessage = messages.join(". ") || errorMessage;
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
+        }
+
         toast({
           title: "Failed to update product",
-          description: error.response?.data?.message || "An error occurred",
+          description: errorMessage,
           variant: "destructive",
         });
       },
@@ -205,9 +241,27 @@ export default function AdminProducts() {
         refetch();
       },
       onError: (error: any) => {
+        // Extract error messages from API response
+        let errorMessage = "An error occurred";
+        const errorData = error.response?.data;
+
+        if (
+          errorData?.errors &&
+          Array.isArray(errorData.errors) &&
+          errorData.errors.length > 0
+        ) {
+          // Extract all error messages from the errors array
+          const messages = errorData.errors
+            .map((err: any) => err.msg || err.message)
+            .filter(Boolean);
+          errorMessage = messages.join(". ") || errorMessage;
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
+        }
+
         toast({
           title: "Failed to delete product",
-          description: error.response?.data?.message || "An error occurred",
+          description: errorMessage,
           variant: "destructive",
         });
       },
@@ -215,7 +269,17 @@ export default function AdminProducts() {
   });
 
   const handleDeleteClick = (product: any) => {
-    setProductToDelete({ id: product.id, name: product.name });
+    // Get the product ID - check both 'id' and '_id' (MongoDB uses '_id')
+    const productId = product.id || product._id;
+    if (!productId) {
+      toast({
+        title: "Invalid product",
+        description: "Product ID is missing. Cannot delete this product.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setProductToDelete({ id: String(productId), name: product.name });
     setDeleteDialogOpen(true);
   };
 
@@ -293,6 +357,20 @@ export default function AdminProducts() {
 
     if (editingProduct) {
       // Update existing product
+      // Get the product ID - check both 'id' and '_id' (MongoDB uses '_id')
+      const productId = editingProduct.id || editingProduct._id;
+
+      if (!productId) {
+        isSubmittingRef.current = false;
+        toast({
+          title: "Invalid product",
+          description:
+            "Product ID is missing. Please try editing the product again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const updateData: any = {
         name: data.name,
         description: data.description,
@@ -306,7 +384,7 @@ export default function AdminProducts() {
 
       updateProductMutation.mutate(
         {
-          id: editingProduct.id,
+          id: String(productId),
           data: updateData,
         },
         {
@@ -562,15 +640,30 @@ export default function AdminProducts() {
                     id="description"
                     {...register("description", {
                       required: "Description is required",
+                      minLength: {
+                        value: 10,
+                        message: "Description must be at least 10 characters",
+                      },
+                      maxLength: {
+                        value: 1000,
+                        message: "Description must not exceed 1000 characters",
+                      },
                     })}
                     placeholder="Enter product description"
                     rows={4}
                   />
-                  {errors.description && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.description.message}
+                  <div className="flex justify-between items-center mt-1">
+                    <div>
+                      {errors.description && (
+                        <p className="text-sm text-destructive">
+                          {errors.description.message}
+                        </p>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {watch("description")?.length || 0} / 1000 characters
                     </p>
-                  )}
+                  </div>
                 </div>
 
                 <div className="flex gap-2">
