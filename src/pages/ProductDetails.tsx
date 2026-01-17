@@ -9,6 +9,8 @@ import {
   Truck,
   Shield,
   Loader2,
+  Star,
+  Check,
 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -107,6 +109,34 @@ export default function ProductDetails() {
         .map(mapApiProductToProduct)
     : [];
 
+  // Calculate discount percentage
+  const discountPercentage =
+    apiProduct.discount ||
+    (product.originalPrice && product.price
+      ? Math.round(
+          ((product.originalPrice - product.price) / product.originalPrice) *
+            100
+        )
+      : 0);
+
+  // Mock rating data (since API doesn't provide it)
+  const rating = 4.8;
+  const reviewCount = 156;
+
+  // Parse nutritional benefits from description or use default
+  const getNutritionalBenefits = () => {
+    if (product.nutritionalInfo) {
+      // Try to parse comma-separated values
+      const benefits = product.nutritionalInfo.split(",").map((b) => b.trim());
+      return benefits.length > 0
+        ? benefits
+        : ["Rich in Vitamin C", "High in Lycopene", "Low Calories"];
+    }
+    return ["Rich in Vitamin C", "High in Lycopene", "Low Calories"];
+  };
+
+  const nutritionalBenefits = getNutritionalBenefits();
+
   const handleAddToCart = () => {
     addItem(product, quantity);
     toast({
@@ -173,39 +203,60 @@ export default function ProductDetails() {
       <section className="py-12 bg-background">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Image */}
+            {/* Image Panel */}
             <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-card shadow-card">
+              <div className="aspect-square rounded-2xl overflow-hidden bg-muted/30 shadow-card relative">
                 <img
                   src={apiProduct.images?.[0] || product.image}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
+                {/* Labels */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                  <span className="px-3 py-1 rounded-full bg-[#90EE90]/80 text-[#2d5016] text-xs font-semibold">
+                    Farm Fresh
+                  </span>
+                  {discountPercentage > 0 && (
+                    <span className="px-3 py-1 rounded-full bg-orange-400 text-white text-xs font-semibold">
+                      -{discountPercentage}% OFF
+                    </span>
+                  )}
+                </div>
               </div>
-              {product.badge && (
-                <span className="absolute top-4 left-4 px-4 py-2 rounded-full bg-accent text-accent-foreground text-sm font-semibold uppercase">
-                  {product.badge === "bestseller"
-                    ? "Best Seller"
-                    : product.badge}
-                </span>
-              )}
             </div>
 
-            {/* Info */}
-            <div>
-              <span className="inline-block px-3 py-1 rounded-full bg-accent/15 text-accent text-sm font-medium uppercase mb-4">
-                {product.category}
-              </span>
-              <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
+            {/* Product Info Panel */}
+            <div className="space-y-6">
+              {/* Title */}
+              <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
                 {product.name}
               </h1>
-              <p className="text-lg text-muted-foreground mb-6">
-                {product.description}
-              </p>
+
+              {/* Rating */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-5 w-5 ${
+                        i < Math.floor(rating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : i < rating
+                          ? "fill-yellow-400/50 text-yellow-400"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-foreground font-medium">{rating}</span>
+                <span className="text-muted-foreground">
+                  ({reviewCount} reviews)
+                </span>
+              </div>
 
               {/* Price */}
-              <div className="flex items-baseline gap-3 mb-8">
-                <span className="font-heading text-3xl font-bold text-foreground">
+              <div className="flex items-baseline gap-3">
+                <span className="font-heading text-4xl font-bold text-foreground">
                   ₹{product.price}
                 </span>
                 {product.originalPrice && (
@@ -213,30 +264,64 @@ export default function ProductDetails() {
                     ₹{product.originalPrice}
                   </span>
                 )}
-                <span className="text-muted-foreground">
-                  / {product.weight}
+                <span className="text-muted-foreground text-lg">
+                  /{product.weight}
                 </span>
               </div>
 
+              {/* Farming Method */}
+              <div className="bg-[#E8F5E9] rounded-xl p-4 border border-[#C8E6C9]">
+                <div className="flex items-center gap-2 mb-2">
+                  <Leaf className="h-5 w-5 text-[#4CAF50]" />
+                  <h3 className="font-heading font-semibold text-foreground">
+                    Farming Method
+                  </h3>
+                </div>
+                <p className="text-sm text-foreground/80">
+                  {product.farmingMethod ||
+                    "Traditional organic farming with natural compost"}
+                </p>
+              </div>
+
+              {/* Nutritional Benefits */}
+              <div>
+                <h3 className="font-heading font-semibold text-foreground mb-3">
+                  Nutritional Benefits
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {nutritionalBenefits.map((benefit, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted text-foreground text-sm"
+                    >
+                      <Check className="h-4 w-4 text-[#4CAF50]" />
+                      {benefit}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
               {/* Quantity Selector */}
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-muted-foreground">
                   Quantity:
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-0 border border-border rounded-lg overflow-hidden">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
+                    className="rounded-none h-10 w-10"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="w-12 text-center font-medium text-lg">
+                  <span className="w-12 text-center font-medium text-lg border-x border-border py-2">
                     {quantity}
                   </span>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="icon"
+                    className="rounded-none h-10 w-10"
                     onClick={() => setQuantity(quantity + 1)}
                   >
                     <Plus className="h-4 w-4" />
@@ -244,11 +329,11 @@ export default function ProductDetails() {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-4 mb-10">
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-3">
                 <Button
                   size="lg"
-                  className="bg-gold hover:bg-gold/90 text-gold-foreground font-semibold flex-1 py-6 text-lg rounded-xl"
+                  className="bg-gold hover:bg-gold/90 text-gold-foreground font-semibold w-full py-6 text-lg rounded-xl"
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
@@ -256,62 +341,35 @@ export default function ProductDetails() {
                 </Button>
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="flex-1 py-6 text-lg rounded-xl border-primary text-primary hover:bg-primary/5"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full py-6 text-lg rounded-xl"
                   onClick={handleBuyNow}
                 >
                   Buy Now
                 </Button>
               </div>
 
-              {/* Features */}
-              <div className="grid grid-cols-3 gap-4 p-4 bg-card rounded-xl">
-                <div className="text-center">
-                  <Leaf className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <span className="text-xs text-muted-foreground">
-                    100% Organic
-                  </span>
+              {/* Footer Info */}
+              <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                <div className="flex items-center gap-2 text-sm text-foreground">
+                  <Truck className="h-5 w-5 text-[#4CAF50]" />
+                  <span>Free delivery above ₹500</span>
                 </div>
-                <div className="text-center">
-                  <Truck className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <span className="text-xs text-muted-foreground">
-                    Fresh Delivery
-                  </span>
-                </div>
-                <div className="text-center">
-                  <Shield className="h-6 w-6 mx-auto mb-2 text-accent" />
-                  <span className="text-xs text-muted-foreground">
-                    Quality Assured
-                  </span>
+                <div className="flex items-center gap-2 text-sm text-foreground">
+                  <Shield className="h-5 w-5 text-[#4CAF50]" />
+                  <span>100% Organic Certified</span>
                 </div>
               </div>
-
-              {/* Additional Info */}
-              {(product.nutritionalInfo || product.farmingMethod) && (
-                <div className="mt-8 space-y-4">
-                  {product.nutritionalInfo && (
-                    <div>
-                      <h3 className="font-heading font-semibold mb-2">
-                        Nutritional Benefits
-                      </h3>
-                      <p className="text-muted-foreground text-sm">
-                        {product.nutritionalInfo}
-                      </p>
-                    </div>
-                  )}
-                  {product.farmingMethod && (
-                    <div>
-                      <h3 className="font-heading font-semibold mb-2">
-                        Farming Method
-                      </h3>
-                      <p className="text-muted-foreground text-sm">
-                        {product.farmingMethod}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
+          </div>
+
+          {/* Description Section (Below buttons) */}
+          <div className="mt-12 pt-8 border-t border-border">
+            <h2 className="font-heading text-2xl font-bold text-foreground mb-4">
+              Product Description
+            </h2>
+            <p className="text-muted-foreground leading-relaxed max-w-3xl">
+              {product.description}
+            </p>
           </div>
         </div>
       </section>

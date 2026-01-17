@@ -137,7 +137,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const currentCart = await queryClient.fetchQuery({
         queryKey: getGetApiCartQueryKey(),
         queryFn: async () => {
-          const response = await fetch('https://kuppams-backend.vercel.app/api/cart', {
+          const response = await fetch('http://localhost:3000/api/cart', {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',

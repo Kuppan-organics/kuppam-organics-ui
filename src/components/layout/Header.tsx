@@ -26,11 +26,11 @@ import { queryConfig } from "@/lib/queryConfig";
 import logo from "@/assets/kuppam_organics-logo.png";
 
 const navLinks = [
-  { name: "Shop", path: "/products" },
+  { name: "Products", path: "/products" },
   { name: "Our Story", path: "/about" },
   { name: "Locations", path: "/locations" },
   { name: "Contact Us", path: "/contact" },
-  { name: "Wellness", path: "/products?category=honey" },
+  { name: "Login", path: "/login" },
 ];
 
 export default function Header() {
