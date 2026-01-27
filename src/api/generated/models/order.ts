@@ -16,6 +16,14 @@ export interface Order {
   user?: string;
   items?: OrderItem[];
   totalAmount?: number;
+  /** Coupon code applied to the order */
+  couponCode?: string;
+  /** Discount percentage from coupon */
+  couponDiscount?: number;
+  /** Discount amount in currency */
+  discountAmount?: number;
+  /** Final amount after coupon discount */
+  finalAmount?: number;
   shippingAddress?: OrderShippingAddress;
   /** Unique order number (e.g., */
   orderNumber?: string;

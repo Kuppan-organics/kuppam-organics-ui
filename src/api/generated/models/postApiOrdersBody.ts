@@ -9,4 +9,6 @@ import type { PostApiOrdersBodyShippingAddress } from './postApiOrdersBodyShippi
 
 export type PostApiOrdersBody = {
   shippingAddress?: PostApiOrdersBodyShippingAddress;
+  /** Optional coupon code to apply */
+  couponCode?: string;
 };

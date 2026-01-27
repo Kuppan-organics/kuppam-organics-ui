@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { usePostApiOrders, usePostApiOrdersBuyNow } from "@/api/generated/orders/orders";
 import { useGetApiAuthProfile } from "@/api/generated/authentication/authentication";
+import { usePostApiCouponsValidate } from "@/api/generated/coupons/coupons";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, X } from "lucide-react";
+import type { PostApiCouponsValidate200Coupon } from "@/api/generated/models";
 
 interface ShippingForm {
   firstName: string;
@@ -57,6 +59,11 @@ export default function Checkout() {
   });
 
   const [errors, setErrors] = useState<Partial<ShippingForm>>({});
+  
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [validatedCoupon, setValidatedCoupon] = useState<PostApiCouponsValidate200Coupon | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   // Fetch user profile to pre-fill the form
   const { data: profileData } = useGetApiAuthProfile({
@@ -115,6 +122,105 @@ export default function Checkout() {
       },
     },
   });
+
+  // Coupon validation mutation
+  const validateCouponMutation = usePostApiCouponsValidate({
+    mutation: {
+      onSuccess: (data) => {
+        if (data.coupon) {
+          setValidatedCoupon(data.coupon);
+          setCouponError(null);
+          toast.success("Coupon applied successfully!");
+        } else {
+          const errorMsg = "Invalid coupon code";
+          setCouponError(errorMsg);
+          toast.error(errorMsg);
+          setValidatedCoupon(null);
+        }
+      },
+      onError: (error: any) => {
+        const errorData = error?.response?.data;
+        const errorMessage = errorData?.message || "Invalid coupon code";
+        
+        // Build enhanced error message for display
+        let displayErrorMessage = errorMessage;
+        if (errorData?.minPurchaseAmount) {
+          const minAmount = errorData.minPurchaseAmount;
+          const currentTotal = subtotal;
+          const shortfall = minAmount - currentTotal;
+          displayErrorMessage = `${errorMessage} Add ₹${shortfall.toFixed(2)} more to your cart to use this coupon.`;
+        }
+        
+        // Set error message for display below input
+        setCouponError(displayErrorMessage);
+        
+        // Also show toast
+        if (errorData?.minPurchaseAmount) {
+          const minAmount = errorData.minPurchaseAmount;
+          const currentTotal = subtotal;
+          const shortfall = minAmount - currentTotal;
+          toast.error(
+            `${errorMessage} Add ₹${shortfall.toFixed(2)} more to your cart to use this coupon.`,
+            {
+              duration: 6000,
+            }
+          );
+        } else {
+          toast.error(errorMessage);
+        }
+        setValidatedCoupon(null);
+      },
+    },
+  });
+
+  // Calculate totals with coupon discount
+  const subtotal = isBuyNow ? buyNowTotal : totalPrice;
+  const discountAmount = validatedCoupon?.discountAmount 
+    ? parseFloat(validatedCoupon.discountAmount) 
+    : 0;
+  const finalAmount = validatedCoupon?.finalAmount 
+    ? parseFloat(validatedCoupon.finalAmount) 
+    : subtotal;
+
+  const handleValidateCoupon = () => {
+    // Clear previous error
+    setCouponError(null);
+    
+    if (!couponCode.trim()) {
+      const errorMsg = "Please enter a coupon code";
+      setCouponError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
+    if (!token) {
+      const errorMsg = "Please login to use coupons";
+      setCouponError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
+    validateCouponMutation.mutate({
+      data: {
+        code: couponCode.trim().toUpperCase(),
+        cartTotal: subtotal,
+      },
+    });
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponCode("");
+    setValidatedCoupon(null);
+    setCouponError(null);
+  };
+
+  const handleCouponCodeChange = (value: string) => {
+    setCouponCode(value.toUpperCase());
+    // Clear error when user starts typing
+    if (couponError) {
+      setCouponError(null);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Partial<ShippingForm> = {};
@@ -185,6 +291,7 @@ export default function Checkout() {
           productId: buyNowProductId,
           quantity: buyNowQuantity,
           shippingAddress,
+          couponCode: validatedCoupon?.code || undefined,
         },
       });
     } else {
@@ -192,6 +299,7 @@ export default function Checkout() {
       createOrderMutation.mutate({
         data: {
           shippingAddress,
+          couponCode: validatedCoupon?.code || undefined,
         },
       });
     }
@@ -482,18 +590,90 @@ export default function Checkout() {
                   )}
                 </div>
 
+                {/* Coupon Section */}
+                <div className="border-t border-border pt-4 mb-4">
+                  <h3 className="font-heading text-sm font-semibold mb-3">
+                    Have a coupon code?
+                  </h3>
+                  {!validatedCoupon ? (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Enter coupon code"
+                          value={couponCode}
+                          onChange={(e) => handleCouponCodeChange(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleValidateCoupon();
+                            }
+                          }}
+                          className={`flex-1 ${couponError ? "border-red-500" : ""}`}
+                          disabled={validateCouponMutation.isPending}
+                        />
+                        <Button
+                          onClick={handleValidateCoupon}
+                          disabled={validateCouponMutation.isPending || !couponCode.trim()}
+                          variant="outline"
+                          size="sm"
+                        >
+                          {validateCouponMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "Apply"
+                          )}
+                        </Button>
+                      </div>
+                      {couponError && (
+                        <p className="text-xs text-red-500 mt-1">{couponError}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                          {validatedCoupon.code}
+                        </p>
+                        {validatedCoupon.description && (
+                          <p className="text-xs text-green-600 dark:text-green-500">
+                            {validatedCoupon.description}
+                          </p>
+                        )}
+                        {validatedCoupon.discountPercentage && (
+                          <p className="text-xs text-green-600 dark:text-green-500 mt-1">
+                            {validatedCoupon.discountPercentage}% off
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        onClick={handleRemoveCoupon}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-green-700 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="border-t border-border pt-4 space-y-3 mb-6">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
-                    <span>₹{isBuyNow ? buyNowTotal : totalPrice}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
+                  {validatedCoupon && discountAmount > 0 && (
+                    <div className="flex justify-between text-green-600 dark:text-green-400">
+                      <span>Discount ({validatedCoupon.code})</span>
+                      <span>-₹{discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-muted-foreground">
                     <span>Delivery</span>
                     <span className="text-accent font-medium">Free</span>
                   </div>
                   <div className="border-t border-border pt-3 flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>₹{isBuyNow ? buyNowTotal : totalPrice}</span>
+                    <span>₹{finalAmount.toFixed(2)}</span>
                   </div>
                 </div>
 

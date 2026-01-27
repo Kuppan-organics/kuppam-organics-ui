@@ -6,25 +6,37 @@
  * OpenAPI spec version: 1.0.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
+  DeleteApiAdminCouponsId200,
+  GetApiAdminCoupons200,
+  GetApiAdminCouponsId200,
+  GetApiAdminCouponsParams,
   GetApiAdminOrdersParams,
   GetApiAdminProductsParams,
   GetApiAdminStats200,
-  GetApiAdminUsersParams
+  GetApiAdminUsersParams,
+  PostApiAdminCoupons201,
+  PostApiAdminCouponsBody,
+  PutApiAdminCouponsId200,
+  PutApiAdminCouponsIdBody
 } from '.././models';
 
 import { customInstance } from '../../mutator';
@@ -401,3 +413,376 @@ export function useGetApiAdminStats<TData = Awaited<ReturnType<typeof getApiAdmi
 
 
 
+/**
+ * @summary Get all coupons (Admin only)
+ */
+export const getApiAdminCoupons = (
+    params?: GetApiAdminCouponsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GetApiAdminCoupons200>(
+      {url: `/api/admin/coupons`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetApiAdminCouponsQueryKey = (params?: GetApiAdminCouponsParams,) => {
+    return [
+    `/api/admin/coupons`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getGetApiAdminCouponsQueryOptions = <TData = Awaited<ReturnType<typeof getApiAdminCoupons>>, TError = void | void>(params?: GetApiAdminCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCoupons>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiAdminCouponsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAdminCoupons>>> = ({ signal }) => getApiAdminCoupons(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCoupons>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiAdminCouponsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAdminCoupons>>>
+export type GetApiAdminCouponsQueryError = void | void
+
+
+export function useGetApiAdminCoupons<TData = Awaited<ReturnType<typeof getApiAdminCoupons>>, TError = void | void>(
+ params: undefined |  GetApiAdminCouponsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCoupons>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminCoupons>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminCoupons>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAdminCoupons<TData = Awaited<ReturnType<typeof getApiAdminCoupons>>, TError = void | void>(
+ params?: GetApiAdminCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCoupons>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminCoupons>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminCoupons>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAdminCoupons<TData = Awaited<ReturnType<typeof getApiAdminCoupons>>, TError = void | void>(
+ params?: GetApiAdminCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCoupons>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get all coupons (Admin only)
+ */
+
+export function useGetApiAdminCoupons<TData = Awaited<ReturnType<typeof getApiAdminCoupons>>, TError = void | void>(
+ params?: GetApiAdminCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCoupons>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiAdminCouponsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
+ * @summary Create a new coupon (Admin only)
+ */
+export const postApiAdminCoupons = (
+    postApiAdminCouponsBody: PostApiAdminCouponsBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PostApiAdminCoupons201>(
+      {url: `/api/admin/coupons`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postApiAdminCouponsBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getPostApiAdminCouponsMutationOptions = <TError = void | void | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAdminCoupons>>, TError,{data: PostApiAdminCouponsBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiAdminCoupons>>, TError,{data: PostApiAdminCouponsBody}, TContext> => {
+
+const mutationKey = ['postApiAdminCoupons'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiAdminCoupons>>, {data: PostApiAdminCouponsBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiAdminCoupons(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiAdminCouponsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiAdminCoupons>>>
+    export type PostApiAdminCouponsMutationBody = PostApiAdminCouponsBody
+    export type PostApiAdminCouponsMutationError = void | void | void
+
+    /**
+ * @summary Create a new coupon (Admin only)
+ */
+export const usePostApiAdminCoupons = <TError = void | void | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiAdminCoupons>>, TError,{data: PostApiAdminCouponsBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiAdminCoupons>>,
+        TError,
+        {data: PostApiAdminCouponsBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostApiAdminCouponsMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Get single coupon by ID (Admin only)
+ */
+export const getApiAdminCouponsId = (
+    id: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GetApiAdminCouponsId200>(
+      {url: `/api/admin/coupons/${id}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetApiAdminCouponsIdQueryKey = (id?: string,) => {
+    return [
+    `/api/admin/coupons/${id}`
+    ] as const;
+    }
+
+    
+export const getGetApiAdminCouponsIdQueryOptions = <TData = Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError = void | void | void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiAdminCouponsIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAdminCouponsId>>> = ({ signal }) => getApiAdminCouponsId(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiAdminCouponsIdQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAdminCouponsId>>>
+export type GetApiAdminCouponsIdQueryError = void | void | void
+
+
+export function useGetApiAdminCouponsId<TData = Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError = void | void | void>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminCouponsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminCouponsId>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAdminCouponsId<TData = Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError = void | void | void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminCouponsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminCouponsId>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAdminCouponsId<TData = Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError = void | void | void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get single coupon by ID (Admin only)
+ */
+
+export function useGetApiAdminCouponsId<TData = Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError = void | void | void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminCouponsId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiAdminCouponsIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+/**
+ * @summary Update a coupon (Admin only)
+ */
+export const putApiAdminCouponsId = (
+    id: string,
+    putApiAdminCouponsIdBody: PutApiAdminCouponsIdBody,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<PutApiAdminCouponsId200>(
+      {url: `/api/admin/coupons/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: putApiAdminCouponsIdBody
+    },
+      options);
+    }
+  
+
+
+export const getPutApiAdminCouponsIdMutationOptions = <TError = void | void | void | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiAdminCouponsId>>, TError,{id: string;data: PutApiAdminCouponsIdBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof putApiAdminCouponsId>>, TError,{id: string;data: PutApiAdminCouponsIdBody}, TContext> => {
+
+const mutationKey = ['putApiAdminCouponsId'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiAdminCouponsId>>, {id: string;data: PutApiAdminCouponsIdBody}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  putApiAdminCouponsId(id,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutApiAdminCouponsIdMutationResult = NonNullable<Awaited<ReturnType<typeof putApiAdminCouponsId>>>
+    export type PutApiAdminCouponsIdMutationBody = PutApiAdminCouponsIdBody
+    export type PutApiAdminCouponsIdMutationError = void | void | void | void
+
+    /**
+ * @summary Update a coupon (Admin only)
+ */
+export const usePutApiAdminCouponsId = <TError = void | void | void | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiAdminCouponsId>>, TError,{id: string;data: PutApiAdminCouponsIdBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof putApiAdminCouponsId>>,
+        TError,
+        {id: string;data: PutApiAdminCouponsIdBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPutApiAdminCouponsIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * @summary Delete a coupon (Admin only)
+ */
+export const deleteApiAdminCouponsId = (
+    id: string,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<DeleteApiAdminCouponsId200>(
+      {url: `/api/admin/coupons/${id}`, method: 'DELETE'
+    },
+      options);
+    }
+  
+
+
+export const getDeleteApiAdminCouponsIdMutationOptions = <TError = void | void | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiAdminCouponsId>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteApiAdminCouponsId>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteApiAdminCouponsId'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiAdminCouponsId>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteApiAdminCouponsId(id,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteApiAdminCouponsIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiAdminCouponsId>>>
+    
+    export type DeleteApiAdminCouponsIdMutationError = void | void | void
+
+    /**
+ * @summary Delete a coupon (Admin only)
+ */
+export const useDeleteApiAdminCouponsId = <TError = void | void | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiAdminCouponsId>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteApiAdminCouponsId>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteApiAdminCouponsIdMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    

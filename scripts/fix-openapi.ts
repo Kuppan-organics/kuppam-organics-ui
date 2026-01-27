@@ -10,7 +10,7 @@ const rootDir = __dirname.includes('scripts') ? path.join(__dirname, '..') : pro
 
 async function fetchAndFixOpenAPI() {
   try {
-    const response = await fetch('https://kuppams-backend.vercel.app/api-docs.json');
+    const response = await fetch('http://localhost:3000/api-docs.json');
     if (!response.ok) {
       throw new Error(`Failed to fetch OpenAPI spec: ${response.statusText}`);
     }

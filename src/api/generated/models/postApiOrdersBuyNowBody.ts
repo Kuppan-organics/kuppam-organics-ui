@@ -16,4 +16,6 @@ export type PostApiOrdersBuyNowBody = {
    */
   quantity: number;
   shippingAddress?: PostApiOrdersBuyNowBodyShippingAddress;
+  /** Optional coupon code to apply */
+  couponCode?: string;
 };

@@ -5,7 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import AdminRoute from "@/components/AdminRoute";
+// import AdminRoute from "@/components/AdminRoute"; // Commented out - Admin functionality moved to separate app
 import { createQueryClient } from "@/lib/queryConfig";
 
 import Index from "./pages/Index";
@@ -27,9 +27,10 @@ import ProfileOrderDetails from "./pages/profile/ProfileOrderDetails";
 import Wishlist from "./pages/profile/Wishlist";
 import ProfileCart from "./pages/profile/ProfileCart";
 import Settings from "./pages/profile/Settings";
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminProducts from "./pages/admin/Products";
-import AdminOrders from "./pages/admin/Orders";
+// Admin pages commented out - Admin functionality moved to separate app
+// import AdminDashboard from "./pages/admin/Dashboard";
+// import AdminProducts from "./pages/admin/Products";
+// import AdminOrders from "./pages/admin/Orders";
 import SearchResults from "./pages/SearchResults";
 
 // Create query client with optimized caching configuration
@@ -85,7 +86,8 @@ const App = () => (
               <Route path="cart" element={<ProfileCart />} />
               <Route path="settings" element={<Settings />} />
             </Route>
-            <Route
+            {/* Admin routes commented out - Admin functionality moved to separate app */}
+            {/* <Route
               path="/admin"
               element={
                 <AdminRoute>
@@ -108,7 +110,7 @@ const App = () => (
                   <AdminOrders />
                 </AdminRoute>
               }
-            />
+            /> */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
