@@ -109,7 +109,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-baseline gap-2">
               <span className="font-bold text-lg text-foreground">
-                ₹{product.price}
+                ₹{(Math.round(product.price * 10) / 10).toFixed(1)}
               </span>
               {product.originalPrice && (
                 <span className="text-xs text-muted-foreground line-through">
