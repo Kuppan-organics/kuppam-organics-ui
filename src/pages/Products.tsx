@@ -100,13 +100,21 @@ const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
   };
 };
 
+const PRODUCTS_PER_PAGE = 10;
+
 export default function Products() {
   const [selectedCategory, setSelectedCategory] =
     useState<string>("vegetables");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [page, setPage] = useState(1);
 
-  // Fetch products from API with optimized caching
+  // Reset to page 1 when category changes
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCategory]);
+
+  // Fetch products from API with pagination
   const {
     data: productsData,
     isLoading: productsLoading,
@@ -115,6 +123,8 @@ export default function Products() {
     {
       category:
         selectedCategory !== "vegetables" ? selectedCategory : undefined,
+      page,
+      limit: PRODUCTS_PER_PAGE,
     },
     {
       query: {
@@ -367,11 +377,29 @@ export default function Products() {
                     Our Products
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    Showing{" "}
-                    <span className="font-medium text-foreground">
-                      {filteredProducts.length}
-                    </span>{" "}
-                    products
+                    {productsData?.total != null ? (
+                      <>
+                        Showing{" "}
+                        <span className="font-medium text-foreground">
+                          {(productsData.page! - 1) * PRODUCTS_PER_PAGE + 1}–
+                          {(productsData.page! - 1) * PRODUCTS_PER_PAGE +
+                            filteredProducts.length}
+                        </span>{" "}
+                        of{" "}
+                        <span className="font-medium text-foreground">
+                          {productsData.total}
+                        </span>{" "}
+                        products
+                      </>
+                    ) : (
+                      <>
+                        Showing{" "}
+                        <span className="font-medium text-foreground">
+                          {filteredProducts.length}
+                        </span>{" "}
+                        products
+                      </>
+                    )}
                   </p>
                 </div>
 
@@ -389,11 +417,58 @@ export default function Products() {
                     </p>
                   </div>
                 ) : filteredProducts.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                    {filteredProducts.map((product) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
-                  </div>
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                      {filteredProducts.map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {(productsData?.pages ?? 0) > 1 && (
+                      <div className="mt-8 rounded-xl border border-border bg-card px-4 py-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <p className="text-sm text-foreground order-2 sm:order-1">
+                          Page{" "}
+                          <span className="font-semibold text-foreground">
+                            {productsData?.page ?? 1}
+                          </span>{" "}
+                          of{" "}
+                          <span className="font-semibold text-foreground">
+                            {productsData?.pages ?? 1}
+                          </span>
+                        </p>
+                        <div className="flex items-center gap-2 order-1 sm:order-2">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={(productsData?.page ?? 1) <= 1}
+                            className="gap-1 border border-border shadow-sm"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                            Previous
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() =>
+                              setPage((p) =>
+                                Math.min(productsData?.pages ?? 1, p + 1)
+                              )
+                            }
+                            disabled={
+                              (productsData?.page ?? 1) >=
+                              (productsData?.pages ?? 1)
+                            }
+                            className="gap-1 border border-border shadow-sm"
+                          >
+                            Next
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-12 bg-card rounded-xl border border-border/50">
                     <p className="text-muted-foreground text-sm mb-3">
