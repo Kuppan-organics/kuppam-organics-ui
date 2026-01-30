@@ -94,7 +94,7 @@ export default function Header() {
       <div className="container">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/home" className="flex items-center gap-3 group">
             <img
               src={logo}
               alt="Kuppam Organics"

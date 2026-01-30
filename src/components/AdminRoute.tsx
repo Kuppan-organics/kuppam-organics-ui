@@ -31,7 +31,7 @@ export default function AdminRoute({ children }: AdminRouteProps) {
   }
 
   if (!user || user.role !== UserRole.admin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return <>{children}</>;

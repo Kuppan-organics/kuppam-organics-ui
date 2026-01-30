@@ -11,6 +11,7 @@ import {
   Headphones,
 } from "lucide-react";
 import logo from "@/assets/kuppam_organics-logo.png";
+import mvpLogo from "@/assets/MVP letter head logo.png";
 
 export default function Footer() {
   return (
@@ -27,7 +28,7 @@ export default function Footer() {
             className="lg:col-span-1"
           >
             <Link
-              to="/"
+              to="/home"
               className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4"
             >
               <img
@@ -167,6 +168,31 @@ export default function Footer() {
             </div>
           </motion.div>
         </div>
+
+        {/* Powered by */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-12 pt-8 border-t border-border flex flex-col items-center justify-center gap-2"
+        >
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">
+            Powered by
+          </span>
+          <a
+            href="https://mvpinnovations.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block opacity-80 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+          >
+            <img
+              src={mvpLogo}
+              alt="MVP Innovations"
+              className="h-12 w-auto object-contain max-w-[280px]"
+            />
+          </a>
+        </motion.div>
       </div>
 
       {/* Bottom Bar */}

@@ -185,7 +185,7 @@ export default function SearchResults() {
               <div className="flex items-center gap-2 text-sm">
                 {/* Home Icon */}
                 <Link
-                  to="/"
+                  to="/home"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
                   <Home className="h-4 w-4" />
