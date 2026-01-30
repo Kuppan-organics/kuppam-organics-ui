@@ -14,6 +14,20 @@ export default function Inauguration() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-[hsl(24,53%,12%)] via-[hsl(28,44%,22%)] to-[hsl(24,53%,8%)] flex flex-col items-center justify-center relative">
+      {/* Guest photo as 2nd layer background – right side */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        aria-hidden
+      >
+        <div className="absolute right-0 top-0 bottom-0 w-full max-w-[55%] min-w-[280px] flex justify-end items-center">
+          <img
+            src={guestPhoto}
+            alt=""
+            className="h-full max-h-[90vh] w-auto object-contain object-right opacity-80"
+          />
+        </div>
+      </div>
+
       {/* Decorative ribbon – top diagonal */}
       <div className="absolute top-0 left-0 right-0 overflow-hidden pointer-events-none z-20">
         <div
@@ -68,31 +82,20 @@ export default function Inauguration() {
         </div>
       </motion.div>
 
-      {/* Photos and content */}
+      {/* Logo – foreground, entirely left */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mt-8 px-4"
+        className="relative z-10 w-full flex items-center justify-start  pl-4 sm:pl-6 md:pl-8"
       >
-        {/* Logo */}
         <div className="flex-shrink-0">
-          <div className="rounded-full p-2 bg-[hsl(40,54%,51%)]/20 border-2 border-[hsl(40,54%,51%)]/50 shadow-xl">
+          {/* Outer circle – fixed size; inner logo fills it */}
+          <div className="w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-72 lg:h-72 rounded-full p-0 bg-[hsl(40,54%,51%)]/20 border-2 border-[hsl(40,54%,51%)]/50 shadow-xl overflow-hidden flex items-center justify-center">
             <img
               src={logoImg}
               alt="Kuppam Organics"
-              className="w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 object-contain rounded-full"
-            />
-          </div>
-        </div>
-
-        {/* Guest photo */}
-        <div className="flex-shrink-0">
-          <div className="rounded-2xl overflow-hidden border-2 border-[hsl(40,54%,51%)]/50 shadow-xl bg-[hsl(36,33%,95%)]/10">
-            <img
-              src={guestPhoto}
-              alt="Honoured Guest"
-              className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 object-cover object-top"
+              className="w-full h-full object-contain rounded-full"
             />
           </div>
         </div>
