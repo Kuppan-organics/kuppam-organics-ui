@@ -1,8 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
 
 @layer base {
   :root {
@@ -41,18 +54,30 @@
     --radius: 0.75rem;
 
     /* Custom gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(24, 56%, 27%) 0%, hsl(28, 44%, 42%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(40, 54%, 51%) 0%, hsl(35, 60%, 45%) 100%);
-    --gradient-organic: linear-gradient(180deg, hsl(36, 33%, 95%) 0%, hsl(35, 100%, 97%) 100%);
-    
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(24, 56%, 27%) 0%,
+      hsl(28, 44%, 42%) 100%
+    );
+    --gradient-gold: linear-gradient(
+      135deg,
+      hsl(40, 54%, 51%) 0%,
+      hsl(35, 60%, 45%) 100%
+    );
+    --gradient-organic: linear-gradient(
+      180deg,
+      hsl(36, 33%, 95%) 0%,
+      hsl(35, 100%, 97%) 100%
+    );
+
     /* Shadows */
     --shadow-soft: 0 4px 20px -2px hsl(24, 56%, 27%, 0.08);
     --shadow-card: 0 8px 30px -4px hsl(24, 56%, 27%, 0.12);
     --shadow-elevated: 0 20px 50px -10px hsl(24, 56%, 27%, 0.15);
 
     /* Typography */
-    --font-heading: 'Poppins', system-ui, sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
+    --font-heading: "Poppins", system-ui, sans-serif;
+    --font-body: "Inter", system-ui, sans-serif;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -95,7 +120,7 @@
     --border: 24 20% 20%;
     --input: 24 20% 20%;
     --ring: 40 54% 51%;
-    
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -121,7 +146,12 @@
     font-family: var(--font-body);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-heading);
     @apply font-semibold tracking-tight;
   }
@@ -131,9 +161,9 @@
   .grain-texture {
     position: relative;
   }
-  
+
   .grain-texture::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");

@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import LazyImage from "@/components/ui/LazyImage";
 import leftImage from "@/assets/left.png";
 import rightImage from "@/assets/right.png";
 import logo from "@/assets/kuppam_organics-logo.png";
@@ -79,127 +80,127 @@ export default function Login() {
       <div className="flex-1 flex flex-col lg:flex-row pt-[100px]">
         {/* Left Column - Login Form */}
         <div className="w-full lg:w-1/2 bg-[#F7F3EE] flex items-center justify-center p-8 lg:p-16 min-h-[calc(100vh-100px)] lg:min-h-0 relative overflow-hidden">
-        {/* Left decorative image */}
-        <div
-          className="absolute inset-0 bg-cover bg-left-bottom bg-no-repeat opacity-100"
-          style={{ backgroundImage: `url(${leftImage})` }}
-        />
-        {/* Content overlay with background for better readability */}
-        <div className="w-full max-w-md relative z-10 bg-white/95 backdrop-blur-sm rounded-2xl p-8 lg:p-10 shadow-lg">
-          <div className="mb-10">
-            <h1 className="text-4xl lg:text-5xl font-serif font-bold text-[#1A0F08] mb-3 drop-shadow-sm">
-              Welcome back
-            </h1>
-            <p className="text-base text-[#4A3A2A] font-body font-medium">
-              Sign in to continue your organic journey
-            </p>
-          </div>
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-sm font-semibold text-[#1A0F08] font-body"
-              >
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loginMutation.isPending}
-                className="rounded-lg border-[#9C6B3D]/30 focus:border-[#9C6B3D] bg-white"
-              />
+          {/* Left decorative image */}
+          <div
+            className="absolute inset-0 bg-cover bg-left-bottom bg-no-repeat opacity-100"
+            style={{ backgroundImage: `url(${leftImage})` }}
+          />
+          {/* Content overlay with background for better readability */}
+          <div className="w-full max-w-md relative z-10 bg-white/95 backdrop-blur-sm rounded-2xl p-8 lg:p-10 shadow-lg">
+            <div className="mb-10">
+              <h1 className="text-4xl lg:text-5xl font-serif font-bold text-[#1A0F08] mb-3 drop-shadow-sm">
+                Welcome back
+              </h1>
+              <p className="text-base text-[#4A3A2A] font-body font-medium">
+                Sign in to continue your organic journey
+              </p>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div className="space-y-2">
                 <Label
-                  htmlFor="password"
+                  htmlFor="email"
                   className="text-sm font-semibold text-[#1A0F08] font-body"
                 >
-                  Password
+                  Email Address
                 </Label>
-                <a
-                  href="#"
-                  className="text-xs text-[#C89B3C] hover:underline font-body"
-                >
-                  Forgot password?
-                </a>
-              </div>
-              <div className="relative">
                 <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loginMutation.isPending}
-                  className="rounded-lg border-[#9C6B3D]/30 focus:border-[#9C6B3D] bg-white pr-10"
+                  className="rounded-lg border-[#9C6B3D]/30 focus:border-[#9C6B3D] bg-white"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4A3A2A] hover:text-[#1A0F08]"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
               </div>
-            </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked === true)}
-                className="border-[#9C6B3D] data-[state=checked]:bg-[#C89B3C] data-[state=checked]:border-[#C89B3C]"
-              />
-              <Label
-                htmlFor="remember"
-                className="text-sm text-[#1A0F08] font-body font-medium cursor-pointer"
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-semibold text-[#1A0F08] font-body"
+                  >
+                    Password
+                  </Label>
+                  <a
+                    href="#"
+                    className="text-xs text-[#C89B3C] hover:underline font-body"
+                  >
+                    Forgot password?
+                  </a>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loginMutation.isPending}
+                    className="rounded-lg border-[#9C6B3D]/30 focus:border-[#9C6B3D] bg-white pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4A3A2A] hover:text-[#1A0F08]"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  className="border-[#9C6B3D] data-[state=checked]:bg-[#C89B3C] data-[state=checked]:border-[#C89B3C]"
+                />
+                <Label
+                  htmlFor="remember"
+                  className="text-sm text-[#1A0F08] font-body font-medium cursor-pointer"
+                >
+                  Remember me for 30 days
+                </Label>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-[#C89B3C] hover:bg-[#B88A2F] text-[#2E1A0F] font-semibold py-6 rounded-xl flex items-center justify-center gap-2 transition-all"
+                disabled={loginMutation.isPending}
               >
-                Remember me for 30 days
-              </Label>
+                {loginMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign In
+                    <ArrowRight className="h-5 w-5" />
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-8 text-center text-sm text-[#4A3A2A] font-body font-medium">
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
+                className="text-[#C89B3C] font-semibold hover:underline"
+              >
+                Create one
+              </Link>
             </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-[#C89B3C] hover:bg-[#B88A2F] text-[#2E1A0F] font-semibold py-6 rounded-xl flex items-center justify-center gap-2 transition-all"
-              disabled={loginMutation.isPending}
-            >
-              {loginMutation.isPending ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  Sign In
-                  <ArrowRight className="h-5 w-5" />
-                </>
-              )}
-            </Button>
-          </form>
-
-          <div className="mt-8 text-center text-sm text-[#4A3A2A] font-body font-medium">
-            Don't have an account?{" "}
-            <Link
-              to="/signup"
-              className="text-[#C89B3C] font-semibold hover:underline"
-            >
-              Create one
-            </Link>
           </div>
         </div>
-      </div>
 
         {/* Right Column - Promotional Content */}
         <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-16 relative overflow-hidden">
@@ -210,10 +211,11 @@ export default function Login() {
           />
           {/* Logo overlay */}
           <div className="relative z-10 flex flex-col items-center justify-center">
-            <img
+            <LazyImage
               src={logo}
               alt="Kuppam Organics Logo"
               className="w-64 h-64 lg:w-[400px] lg:h-[400px] object-contain drop-shadow-2xl"
+              eager={true}
             />
           </div>
         </div>

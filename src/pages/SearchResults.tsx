@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import LazyImage from "@/components/ui/LazyImage";
 import {
   Collapsible,
   CollapsibleContent,
@@ -170,10 +171,11 @@ export default function SearchResults() {
 
           {/* Banner Background Image */}
           <div className="absolute inset-0 overflow-hidden bg-gray-900">
-            <img
+            <LazyImage
               src={banner}
               alt="Banner"
               className="w-full h-full object-cover object-center"
+              eager={true}
             />
             {/* Overlay for better text readability */}
             <div className="absolute inset-0 bg-gradient-to-r from-gray-900/60 via-gray-900/40 to-transparent" />
@@ -433,7 +435,7 @@ export default function SearchResults() {
                       <div className="bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-border/30 relative">
                         {/* Product Image */}
                         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                          <img
+                          <LazyImage
                             src={product.image}
                             alt={product.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

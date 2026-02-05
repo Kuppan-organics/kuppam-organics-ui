@@ -1,19 +1,20 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Product } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { useCart } from '@/contexts/CartContext';
-import { toast } from '@/hooks/use-toast';
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Product } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "@/hooks/use-toast";
+import LazyImage from "@/components/ui/LazyImage";
 
 interface ProductCardProps {
   product: Product;
 }
 
 const badgeStyles = {
-  organic: 'bg-green-100 text-green-700',
-  bestseller: 'bg-gold/15 text-gold',
-  new: 'bg-secondary/15 text-secondary',
-  sale: 'bg-destructive/15 text-destructive',
+  organic: "bg-green-100 text-green-700",
+  bestseller: "bg-gold/15 text-gold",
+  new: "bg-secondary/15 text-secondary",
+  sale: "bg-destructive/15 text-destructive",
 };
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -26,7 +27,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.stopPropagation();
     addItem(product);
     toast({
-      title: 'Added to Cart',
+      title: "Added to Cart",
       description: `${product.name} has been added to your cart.`,
     });
   };
@@ -34,7 +35,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Check if user is logged in
     if (!token) {
       toast({
@@ -42,7 +43,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         description: "Please login to proceed with buy now.",
         variant: "destructive",
       });
-      navigate("/login", { state: { from: `/product/${product.id}`, buyNow: true } });
+      navigate("/login", {
+        state: { from: `/product/${product.id}`, buyNow: true },
+      });
       return;
     }
 
@@ -63,10 +66,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Link
-      to={`/product/${product.id}`}
-      className="group block"
-    >
+    <Link to={`/product/${product.id}`} className="group block">
       <motion.div
         whileHover={{ y: -4 }}
         transition={{ duration: 0.2 }}
@@ -74,20 +74,30 @@ export default function ProductCard({ product }: ProductCardProps) {
       >
         {/* Image */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted/50">
-          <motion.img
+          <motion.div
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.4 }}
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
-          
+            className="w-full h-full"
+          >
+            <LazyImage
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+
           {/* Badge - Top Left */}
           {product.badge && (
             <span
-              className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-semibold ${badgeStyles[product.badge]}`}
+              className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-semibold ${
+                badgeStyles[product.badge]
+              }`}
             >
-              {product.badge === 'organic' ? '100% Organic' : product.badge === 'bestseller' ? 'Best Seller' : product.badge}
+              {product.badge === "organic"
+                ? "100% Organic"
+                : product.badge === "bestseller"
+                ? "Best Seller"
+                : product.badge}
             </span>
           )}
         </div>
@@ -97,7 +107,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <h3 className="font-semibold text-base text-foreground mb-2 line-clamp-1 group-hover:text-primary transition-colors">
             {product.name}
           </h3>
-          
+
           {/* Description */}
           {product.description && (
             <p className="text-xs text-muted-foreground mb-3 line-clamp-2">

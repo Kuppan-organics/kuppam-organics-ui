@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import LazyImage from "@/components/ui/LazyImage";
 import leftImage from "@/assets/left.png";
 import rightImage from "@/assets/right.png";
 import logo from "@/assets/kuppam_organics-logo.png";
@@ -267,10 +268,11 @@ export default function Signup() {
           />
           {/* Logo overlay */}
           <div className="relative z-10 flex flex-col items-center justify-center">
-            <img
+            <LazyImage
               src={logo}
               alt="Kuppam Organics Logo"
               className="w-64 h-64 lg:w-[400px] lg:h-[400px] object-contain drop-shadow-2xl"
+              eager={true}
             />
           </div>
         </div>

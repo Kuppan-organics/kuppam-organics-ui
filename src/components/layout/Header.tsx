@@ -11,6 +11,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import LazyImage from "@/components/ui/LazyImage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -95,10 +96,11 @@ export default function Header() {
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/home" className="flex items-center gap-3 group">
-            <img
+            <LazyImage
               src={logo}
               alt="Kuppam Organics"
               className="h-20 w-20 object-contain"
+              eager={true}
             />
             <span className="font-heading text-lg font-bold transition-colors text-primary group-hover:text-gold">
               Kuppam Organics

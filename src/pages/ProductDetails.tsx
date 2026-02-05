@@ -15,6 +15,7 @@ import {
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product/ProductCard";
+import LazyImage from "@/components/ui/LazyImage";
 import {
   useGetApiProductsId,
   useGetApiProducts,
@@ -206,10 +207,11 @@ export default function ProductDetails() {
             {/* Image Panel */}
             <div className="relative">
               <div className="aspect-square rounded-2xl overflow-hidden bg-muted/30 shadow-card relative">
-                <img
+                <LazyImage
                   src={apiProduct.images?.[0] || product.image}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  eager={true}
                 />
                 {/* Labels */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">

@@ -1,40 +1,52 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Play } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import heroImage from '@/assets/hero-farm.jpg';
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowRight, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import LazyImage from "@/components/ui/LazyImage";
+import heroImage from "@/assets/hero-farm.jpg";
+import mobileHeroImage from "@/assets/hero-tab.png";
 
 export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Background Image with parallax effect */}
-      <motion.div 
+      <motion.div
         initial={{ scale: 1.1 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
         className="absolute inset-0"
       >
-        <img
+        {/* Mobile and Tablet Image */}
+        <LazyImage
+          src={mobileHeroImage}
+          alt="Organic farm landscape"
+          className="w-full h-full object-cover md:hidden"
+          style={{ objectPosition: "center center" }}
+          eager={true}
+        />
+        {/* Desktop Image */}
+        <LazyImage
           src={heroImage}
           alt="Organic farm landscape"
-          className="w-full h-full object-cover"
+          className="hidden md:block w-full h-full object-cover"
+          eager={true}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-foreground/20" />
       </motion.div>
 
       {/* Floating decorative elements */}
       <motion.div
-        animate={{ 
+        animate={{
           y: [0, -20, 0],
-          rotate: [0, 5, 0]
+          rotate: [0, 5, 0],
         }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         className="absolute top-1/4 right-1/4 w-20 h-20 rounded-full bg-gold/20 blur-2xl"
       />
       <motion.div
-        animate={{ 
+        animate={{
           y: [0, 20, 0],
-          rotate: [0, -5, 0]
+          rotate: [0, -5, 0],
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         className="absolute bottom-1/3 right-1/3 w-32 h-32 rounded-full bg-accent/20 blur-3xl"
@@ -66,7 +78,7 @@ export default function HeroSection() {
             className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold text-card leading-[1.1] mb-8"
           >
             <span className="block">Purely Organic,</span>
-            <motion.span 
+            <motion.span
               className="block text-gold"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -82,8 +94,8 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-lg md:text-xl text-card/80 mb-10 leading-relaxed max-w-xl"
           >
-            Ethically sourced, chemical-free products directly from our farmers to your home. 
-            Discover the essence of nature in every bite.
+            Ethically sourced, chemical-free products directly from our farmers
+            to your home. Discover the essence of nature in every bite.
           </motion.p>
 
           <motion.div
@@ -93,7 +105,10 @@ export default function HeroSection() {
             className="flex flex-wrap gap-4"
           >
             <Link to="/products">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Button className="bg-gold hover:bg-gold/90 text-gold-foreground font-semibold px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all group">
                   Explore All Products
                   <motion.span
@@ -108,8 +123,8 @@ export default function HeroSection() {
             </Link>
 
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="border-2 border-white/50 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 hover:border-white px-8 py-6 text-lg rounded-full shadow-lg group font-semibold"
               >
                 <Play className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
@@ -119,7 +134,6 @@ export default function HeroSection() {
           </motion.div>
         </div>
       </div>
-
     </section>
   );
 }

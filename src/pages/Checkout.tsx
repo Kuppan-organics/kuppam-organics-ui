@@ -2,11 +2,15 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import LazyImage from "@/components/ui/LazyImage";
 import { useCart } from "@/contexts/CartContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { usePostApiOrders, usePostApiOrdersBuyNow } from "@/api/generated/orders/orders";
+import {
+  usePostApiOrders,
+  usePostApiOrdersBuyNow,
+} from "@/api/generated/orders/orders";
 import { useGetApiAuthProfile } from "@/api/generated/authentication/authentication";
 import { usePostApiCouponsValidate } from "@/api/generated/coupons/coupons";
 import { toast } from "sonner";
@@ -31,7 +35,7 @@ export default function Checkout() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const token = localStorage.getItem("token");
-  
+
   // Check if this is a buy now flow
   const buyNowState = location.state as {
     buyNow?: boolean;
@@ -39,12 +43,12 @@ export default function Checkout() {
     quantity?: number;
     product?: { id: string; name: string; price: number; image: string };
   } | null;
-  
+
   const isBuyNow = buyNowState?.buyNow || false;
   const buyNowProduct = buyNowState?.product;
   const buyNowProductId = buyNowState?.productId;
   const buyNowQuantity = buyNowState?.quantity || 1;
-  
+
   // Calculate buy now total
   const buyNowTotal = buyNowProduct ? buyNowProduct.price * buyNowQuantity : 0;
 
@@ -59,10 +63,11 @@ export default function Checkout() {
   });
 
   const [errors, setErrors] = useState<Partial<ShippingForm>>({});
-  
+
   // Coupon state
   const [couponCode, setCouponCode] = useState("");
-  const [validatedCoupon, setValidatedCoupon] = useState<PostApiCouponsValidate200Coupon | null>(null);
+  const [validatedCoupon, setValidatedCoupon] =
+    useState<PostApiCouponsValidate200Coupon | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
 
   // Fetch user profile to pre-fill the form
@@ -118,7 +123,10 @@ export default function Checkout() {
         setOrderId(data.order?.orderNumber || data.order?.id || null);
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || "Failed to place order. Please try again.");
+        toast.error(
+          error?.response?.data?.message ||
+            "Failed to place order. Please try again."
+        );
       },
     },
   });
@@ -141,26 +149,30 @@ export default function Checkout() {
       onError: (error: any) => {
         const errorData = error?.response?.data;
         const errorMessage = errorData?.message || "Invalid coupon code";
-        
+
         // Build enhanced error message for display
         let displayErrorMessage = errorMessage;
         if (errorData?.minPurchaseAmount) {
           const minAmount = errorData.minPurchaseAmount;
           const currentTotal = subtotal;
           const shortfall = minAmount - currentTotal;
-          displayErrorMessage = `${errorMessage} Add ₹${shortfall.toFixed(2)} more to your cart to use this coupon.`;
+          displayErrorMessage = `${errorMessage} Add ₹${shortfall.toFixed(
+            2
+          )} more to your cart to use this coupon.`;
         }
-        
+
         // Set error message for display below input
         setCouponError(displayErrorMessage);
-        
+
         // Also show toast
         if (errorData?.minPurchaseAmount) {
           const minAmount = errorData.minPurchaseAmount;
           const currentTotal = subtotal;
           const shortfall = minAmount - currentTotal;
           toast.error(
-            `${errorMessage} Add ₹${shortfall.toFixed(2)} more to your cart to use this coupon.`,
+            `${errorMessage} Add ₹${shortfall.toFixed(
+              2
+            )} more to your cart to use this coupon.`,
             {
               duration: 6000,
             }
@@ -175,17 +187,17 @@ export default function Checkout() {
 
   // Calculate totals with coupon discount
   const subtotal = isBuyNow ? buyNowTotal : totalPrice;
-  const discountAmount = validatedCoupon?.discountAmount 
-    ? parseFloat(validatedCoupon.discountAmount) 
+  const discountAmount = validatedCoupon?.discountAmount
+    ? parseFloat(validatedCoupon.discountAmount)
     : 0;
-  const finalAmount = validatedCoupon?.finalAmount 
-    ? parseFloat(validatedCoupon.finalAmount) 
+  const finalAmount = validatedCoupon?.finalAmount
+    ? parseFloat(validatedCoupon.finalAmount)
     : subtotal;
 
   const handleValidateCoupon = () => {
     // Clear previous error
     setCouponError(null);
-    
+
     if (!couponCode.trim()) {
       const errorMsg = "Please enter a coupon code";
       setCouponError(errorMsg);
@@ -549,7 +561,7 @@ export default function Checkout() {
                 <div className="space-y-4 mb-6">
                   {isBuyNow && buyNowProduct ? (
                     <div className="flex items-center gap-3">
-                      <img
+                      <LazyImage
                         src={buyNowProduct.image}
                         alt={buyNowProduct.name}
                         className="w-12 h-12 object-cover rounded-lg"
@@ -562,14 +574,12 @@ export default function Checkout() {
                           Qty: {buyNowQuantity}
                         </p>
                       </div>
-                      <p className="text-sm font-medium">
-                        ₹{buyNowTotal}
-                      </p>
+                      <p className="text-sm font-medium">₹{buyNowTotal}</p>
                     </div>
                   ) : (
                     items.map((item) => (
                       <div key={item.id} className="flex items-center gap-3">
-                        <img
+                        <LazyImage
                           src={item.image}
                           alt={item.name}
                           className="w-12 h-12 object-cover rounded-lg"
@@ -601,18 +611,25 @@ export default function Checkout() {
                         <Input
                           placeholder="Enter coupon code"
                           value={couponCode}
-                          onChange={(e) => handleCouponCodeChange(e.target.value)}
+                          onChange={(e) =>
+                            handleCouponCodeChange(e.target.value)
+                          }
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
                               handleValidateCoupon();
                             }
                           }}
-                          className={`flex-1 ${couponError ? "border-red-500" : ""}`}
+                          className={`flex-1 ${
+                            couponError ? "border-red-500" : ""
+                          }`}
                           disabled={validateCouponMutation.isPending}
                         />
                         <Button
                           onClick={handleValidateCoupon}
-                          disabled={validateCouponMutation.isPending || !couponCode.trim()}
+                          disabled={
+                            validateCouponMutation.isPending ||
+                            !couponCode.trim()
+                          }
                           variant="outline"
                           size="sm"
                         >
@@ -624,7 +641,9 @@ export default function Checkout() {
                         </Button>
                       </div>
                       {couponError && (
-                        <p className="text-xs text-red-500 mt-1">{couponError}</p>
+                        <p className="text-xs text-red-500 mt-1">
+                          {couponError}
+                        </p>
                       )}
                     </div>
                   ) : (
@@ -680,9 +699,17 @@ export default function Checkout() {
                 <Button
                   className="w-full bg-gold hover:bg-gold/90 text-gold-foreground font-semibold py-6 text-lg rounded-xl"
                   onClick={handlePlaceOrder}
-                  disabled={isBuyNow ? buyNowMutation.isPending : createOrderMutation.isPending}
+                  disabled={
+                    isBuyNow
+                      ? buyNowMutation.isPending
+                      : createOrderMutation.isPending
+                  }
                 >
-                  {(isBuyNow ? buyNowMutation.isPending : createOrderMutation.isPending) ? (
+                  {(
+                    isBuyNow
+                      ? buyNowMutation.isPending
+                      : createOrderMutation.isPending
+                  ) ? (
                     <>
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                       Placing Order...

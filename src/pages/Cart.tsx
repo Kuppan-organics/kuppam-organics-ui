@@ -1,11 +1,26 @@
-import { Link } from 'react-router-dom';
-import { Minus, Plus, Trash2, ArrowLeft, ShoppingBag, Loader2 } from 'lucide-react';
-import Layout from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
-import { useCart } from '@/contexts/CartContext';
+import { Link } from "react-router-dom";
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ArrowLeft,
+  ShoppingBag,
+  Loader2,
+} from "lucide-react";
+import Layout from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
+import LazyImage from "@/components/ui/LazyImage";
 
 export default function Cart() {
-  const { items, updateQuantity, removeItem, totalPrice, totalItems, isLoading } = useCart();
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    totalPrice,
+    totalItems,
+    isLoading,
+  } = useCart();
 
   if (isLoading) {
     return (
@@ -23,7 +38,9 @@ export default function Cart() {
       <Layout>
         <div className="container pb-20 text-center">
           <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground/50 mb-6" />
-          <h1 className="font-heading text-2xl font-bold mb-4">Your cart is empty</h1>
+          <h1 className="font-heading text-2xl font-bold mb-4">
+            Your cart is empty
+          </h1>
           <p className="text-muted-foreground mb-8">
             Looks like you haven't added anything to your cart yet.
           </p>
@@ -68,7 +85,7 @@ export default function Cart() {
                 >
                   {/* Image */}
                   <Link to={`/product/${item.id}`} className="shrink-0">
-                    <img
+                    <LazyImage
                       src={item.image}
                       alt={item.name}
                       className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded-xl"
@@ -83,8 +100,12 @@ export default function Cart() {
                           {item.name}
                         </h3>
                       </Link>
-                      <p className="text-sm text-muted-foreground">{item.weight}</p>
-                      <p className="text-primary font-semibold mt-1">₹{item.price}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.weight}
+                      </p>
+                      <p className="text-primary font-semibold mt-1">
+                        ₹{item.price}
+                      </p>
                     </div>
 
                     <div className="flex items-center justify-between sm:justify-end gap-4">
@@ -94,16 +115,22 @@ export default function Cart() {
                           variant="outline"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
-                        <span className="w-8 text-center font-medium">{item.quantity}</span>
+                        <span className="w-8 text-center font-medium">
+                          {item.quantity}
+                        </span>
                         <Button
                           variant="outline"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -111,7 +138,9 @@ export default function Cart() {
 
                       {/* Total & Remove */}
                       <div className="text-right">
-                        <p className="font-bold text-lg">₹{item.price * item.quantity}</p>
+                        <p className="font-bold text-lg">
+                          ₹{item.price * item.quantity}
+                        </p>
                         <button
                           onClick={() => removeItem(item.id)}
                           className="text-destructive text-sm hover:underline inline-flex items-center gap-1 mt-1"
@@ -129,7 +158,9 @@ export default function Cart() {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-card rounded-2xl p-6 shadow-card sticky top-28">
-                <h2 className="font-heading text-xl font-semibold mb-6">Order Summary</h2>
+                <h2 className="font-heading text-xl font-semibold mb-6">
+                  Order Summary
+                </h2>
 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-muted-foreground">

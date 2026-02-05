@@ -9,7 +9,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 // import AdminRoute from "@/components/AdminRoute"; // Commented out - Admin functionality moved to separate app
 import { createQueryClient } from "@/lib/queryConfig";
 
-import Inauguration from "@/pages/Inauguration";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
@@ -56,7 +55,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
-            <Route path="/" element={<Inauguration />} />
+            <Route path="/" element={<Index />} />
             <Route path="/home" element={<Index />} />
             <Route path="/products" element={<Products />} />
             <Route path="/search" element={<SearchResults />} />

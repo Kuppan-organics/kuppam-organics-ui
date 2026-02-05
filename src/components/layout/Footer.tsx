@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import LazyImage from "@/components/ui/LazyImage";
 import {
   Facebook,
   Instagram,
@@ -31,10 +32,11 @@ export default function Footer() {
               to="/home"
               className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4"
             >
-              <img
+              <LazyImage
                 src={logo}
                 alt="Kuppam Organics"
                 className="w-[120px] h-[120px] sm:w-[120px] sm:h-[120px] md:w-[120px] md:h-[120px] object-contain flex-shrink-0"
+                eager={true}
               />
               <span className="font-heading text-lg font-bold text-primary">
                 Kuppam Organics
@@ -186,7 +188,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             className="inline-block opacity-80 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
           >
-            <img
+            <LazyImage
               src={mvpLogo}
               alt="MVP Innovations"
               className="h-12 w-auto object-contain max-w-[280px]"

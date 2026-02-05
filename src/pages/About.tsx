@@ -1,5 +1,6 @@
 import { Leaf, Heart, Users, TreePine } from "lucide-react";
 import Layout from "@/components/layout/Layout";
+import LazyImage from "@/components/ui/LazyImage";
 import heroImage from "@/assets/about.png";
 
 const values = [
@@ -35,10 +36,11 @@ export default function About() {
       {/* Hero */}
       <section className="relative pb-24 bg-primary text-primary-foreground overflow-hidden min-h-[500px] md:min-h-[600px] flex items-center justify-center">
         <div className="absolute inset-0 opacity-40">
-          <img
+          <LazyImage
             src={heroImage}
             alt=""
             className="w-full h-full object-cover object-top"
+            eager={true}
           />
         </div>
         <div className="container relative z-10 text-center">

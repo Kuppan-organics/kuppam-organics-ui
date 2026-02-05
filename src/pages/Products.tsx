@@ -24,6 +24,7 @@ import {
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product/ProductCard";
+import LazyImage from "@/components/ui/LazyImage";
 import {
   Collapsible,
   CollapsibleContent,
@@ -172,10 +173,11 @@ export default function Products() {
       <div className="min-h-screen relative">
         {/* Background Illustration for Entire Page */}
         <div className="fixed inset-0 -z-10">
-          <img
+          <LazyImage
             src={bgImage}
             alt="Background"
             className="w-full h-full object-cover"
+            eager={true}
           />
         </div>
 
@@ -189,10 +191,12 @@ export default function Products() {
               <section className="relative overflow-hidden h-[400px] sm:h-[450px] lg:h-[500px] xl:h-[600px]">
                 {/* Background Image */}
                 <div className="absolute inset-0">
-                  <img
+                  <LazyImage
+                    key={currentSlide}
                     src={carouselImages[currentSlide]}
                     alt={`Carousel ${currentSlide + 1}`}
                     className="w-full h-full object-cover transition-opacity duration-500"
+                    eager={currentSlide === 0}
                   />
                   {/* Gradient overlay only on left side for text readability */}
                   <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
