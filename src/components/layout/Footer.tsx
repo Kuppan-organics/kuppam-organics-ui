@@ -15,17 +15,17 @@ import mvpLogo from "@/assets/MVP letter head logo.png";
 
 export default function Footer() {
   return (
-    <footer className="bg-muted">
+    <footer className="bg-muted overflow-x-hidden">
       {/* Main Footer */}
-      <div className="container py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="container py-16 px-4 sm:px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="lg:col-span-1"
+            className="lg:col-span-1 min-w-0"
           >
             <Link
               to="/home"
@@ -53,6 +53,7 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
+            className="min-w-0"
           >
             <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">
               Quick Links
@@ -99,6 +100,7 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            className="min-w-0"
           >
             <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">
               Support
@@ -145,7 +147,7 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col"
+            className="flex flex-col min-w-0"
           >
             <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">
               Follow Us
@@ -180,7 +182,7 @@ export default function Footer() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-8 pt-6 border-t border-border flex flex-col gap-2"
+              className="mt-8 pt-6 border-t border-border flex flex-col gap-2 min-w-0 w-full max-w-full"
             >
               <span className="text-xs uppercase tracking-wider text-muted-foreground">
                 Powered by
@@ -189,12 +191,12 @@ export default function Footer() {
                 href="https://mvpinnovations.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block opacity-80 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+                className="inline-block opacity-80 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded max-w-full min-w-0"
               >
                 <LazyImage
                   src={mvpLogo}
                   alt="MVP Innovations"
-                  className="h-12 w-auto object-contain max-w-[280px]"
+                  className="h-10 sm:h-12 w-full max-w-[200px] sm:max-w-[240px] lg:max-w-[280px] object-contain object-left"
                 />
               </a>
             </motion.div>
@@ -204,8 +206,8 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="bg-primary/5 border-t border-border">
-        <div className="container py-6 text-center text-sm text-muted-foreground">
-          <p>© 2026 KUPPAM ORGANICS. SOIL TO SOUL.</p>
+        <div className="container py-6 px-4 sm:px-6 text-center text-sm text-muted-foreground">
+          <p className="break-words">© 2026 KUPPAM ORGANICS. SOIL TO SOUL.</p>
         </div>
       </div>
     </footer>

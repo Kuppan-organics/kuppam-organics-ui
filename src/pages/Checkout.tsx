@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,14 @@ import { usePostApiCouponsValidate } from "@/api/generated/coupons/coupons";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, X } from "lucide-react";
 import type { PostApiCouponsValidate200Coupon } from "@/api/generated/models";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import confetti from "canvas-confetti";
+import thankYouImage from "@/assets/image.png";
 
 interface ShippingForm {
   firstName: string;
@@ -31,10 +39,46 @@ export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("pay_at_store");
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [showThankYouModal, setShowThankYouModal] = useState(false);
+  const hasShownImageModalRef = useRef(false);
   const token = localStorage.getItem("token");
+
+  // When order is placed, show the thank-you image modal once
+  useEffect(() => {
+    if (orderPlaced && !hasShownImageModalRef.current) {
+      hasShownImageModalRef.current = true;
+      setShowImageModal(true);
+    }
+  }, [orderPlaced]);
+
+  // Fire confetti when image modal is open
+  useEffect(() => {
+    if (!showImageModal) return;
+    const duration = 3 * 1000;
+    const end = Date.now() + duration;
+    const frame = () => {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: ["#d4af37", "#c9a227", "#b8860b", "#daa520"],
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: ["#d4af37", "#c9a227", "#b8860b", "#daa520"],
+      });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+  }, [showImageModal]);
 
   // Check if this is a buy now flow
   const buyNowState = location.state as {
@@ -125,7 +169,7 @@ export default function Checkout() {
       onError: (error: any) => {
         toast.error(
           error?.response?.data?.message ||
-            "Failed to place order. Please try again."
+            "Failed to place order. Please try again.",
         );
       },
     },
@@ -157,7 +201,7 @@ export default function Checkout() {
           const currentTotal = subtotal;
           const shortfall = minAmount - currentTotal;
           displayErrorMessage = `${errorMessage} Add ₹${shortfall.toFixed(
-            2
+            2,
           )} more to your cart to use this coupon.`;
         }
 
@@ -171,11 +215,11 @@ export default function Checkout() {
           const shortfall = minAmount - currentTotal;
           toast.error(
             `${errorMessage} Add ₹${shortfall.toFixed(
-              2
+              2,
             )} more to your cart to use this coupon.`,
             {
               duration: 6000,
-            }
+            },
           );
         } else {
           toast.error(errorMessage);
@@ -320,13 +364,23 @@ export default function Checkout() {
   if (!isBuyNow && items.length === 0 && !orderPlaced) {
     return (
       <Layout>
-        <div className="container pb-20 text-center">
-          <h1 className="font-heading text-2xl font-bold mb-4">
-            No items in cart
-          </h1>
-          <Link to="/products">
-            <Button>Continue Shopping</Button>
-          </Link>
+        <div className="min-h-[60vh] sm:min-h-[65vh] flex flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-16 md:py-24">
+          <div className="container text-center max-w-2xl mx-auto">
+            <h1 className="font-heading text-2xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-balance">
+              No items in cart
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto text-balance">
+              Add items from the shop to proceed to checkout.
+            </p>
+            <Link to="/products" className="inline-block w-full sm:w-auto">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-auto min-h-[48px]"
+              >
+                Continue Shopping
+              </Button>
+            </Link>
+          </div>
         </div>
       </Layout>
     );
@@ -336,52 +390,102 @@ export default function Checkout() {
   if (isBuyNow && !buyNowProduct && !buyNowProductId) {
     return (
       <Layout>
-        <div className="container pb-20 text-center">
-          <h1 className="font-heading text-2xl font-bold mb-4">
-            Invalid buy now request
-          </h1>
-          <Link to="/products">
-            <Button>Continue Shopping</Button>
-          </Link>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-16">
+          <div className="container text-center max-w-2xl mx-auto">
+            <h1 className="font-heading text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-balance">
+              Invalid buy now request
+            </h1>
+            <Link to="/products" className="inline-block w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto min-h-[48px]">
+                Continue Shopping
+              </Button>
+            </Link>
+          </div>
         </div>
       </Layout>
     );
   }
 
-  // Order success state
+  // Order success state: image modal → thank you modal → final success view
   if (orderPlaced) {
+    const bothModalsClosed = !showImageModal && !showThankYouModal;
+
     return (
       <Layout>
-        <div className="container pb-20">
-          <div className="max-w-lg mx-auto text-center py-12">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-green-600" />
+        {/* Modal 1: Thank you image with confetti */}
+        <Dialog
+          open={showImageModal}
+          onOpenChange={(open) => {
+            if (!open) {
+              setShowImageModal(false);
+              setShowThankYouModal(true);
+            }
+          }}
+        >
+          <DialogContent className="max-w-2xl p-0 overflow-hidden border-0 bg-transparent shadow-none">
+            <div className="relative rounded-2xl overflow-hidden bg-card/95 backdrop-blur">
+              <img
+                src={thankYouImage}
+                alt="Thank you from Kuppam Organics"
+                className="w-full h-auto object-contain max-h-[85vh]"
+              />
             </div>
-            <h1 className="font-heading text-3xl font-bold mb-4 text-green-700">
-              Order Placed Successfully!
-            </h1>
-            <p className="text-muted-foreground mb-2">
-              Thank you for your order. We'll send you a confirmation email
-              shortly.
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal 2: Thank you for your first order */}
+        <Dialog
+          open={showThankYouModal}
+          onOpenChange={(open) => {
+            if (!open) setShowThankYouModal(false);
+          }}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-center font-heading text-2xl text-green-700">
+                Thank for your first order Nara Bhuvaneshwari garu
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-center text-muted-foreground py-4">
+              We are grateful for your trust in Kuppam Organics. Your order has
+              been confirmed.
             </p>
-            {orderId && (
-              <p className="text-sm text-muted-foreground mb-8">
-                Order ID:{" "}
-                <span className="font-mono font-medium">{orderId}</span>
+          </DialogContent>
+        </Dialog>
+
+        {/* Final success view (after both modals are closed) */}
+        {bothModalsClosed && (
+          <div className="container pb-20">
+            <div className="max-w-lg mx-auto text-center py-12">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-green-600" />
+              </div>
+              <h1 className="font-heading text-3xl font-bold mb-4 text-green-700">
+                Order Placed Successfully!
+              </h1>
+              <p className="text-muted-foreground mb-2">
+                Thank you for your order. We'll send you a confirmation email
+                shortly.
               </p>
-            )}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/profile/orders">
-                <Button className="bg-gold hover:bg-gold/90 text-gold-foreground">
-                  View Orders
-                </Button>
-              </Link>
-              <Link to="/products">
-                <Button variant="outline">Continue Shopping</Button>
-              </Link>
+              {orderId && (
+                <p className="text-sm text-muted-foreground mb-8">
+                  Order ID:{" "}
+                  <span className="font-mono font-medium">{orderId}</span>
+                </p>
+              )}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to="/profile/orders">
+                  <Button className="bg-gold hover:bg-gold/90 text-gold-foreground">
+                    View Orders
+                  </Button>
+                </Link>
+                <Link to="/products">
+                  <Button variant="outline">Continue Shopping</Button>
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </Layout>
     );
   }
@@ -520,6 +624,18 @@ export default function Checkout() {
                   onValueChange={setPaymentMethod}
                   className="space-y-3"
                 >
+                  <div className="flex items-center space-x-3 p-4 border border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
+                    <RadioGroupItem value="pay_at_store" id="pay_at_store" />
+                    <Label
+                      htmlFor="pay_at_store"
+                      className="flex-1 cursor-pointer"
+                    >
+                      <span className="font-medium">Pay at Store</span>
+                      <span className="block text-sm text-muted-foreground">
+                        Visit our store to complete payment
+                      </span>
+                    </Label>
+                  </div>
                   <div className="flex items-center space-x-3 p-4 border border-border rounded-xl hover:border-primary transition-colors cursor-pointer">
                     <RadioGroupItem value="upi" id="upi" />
                     <Label htmlFor="upi" className="flex-1 cursor-pointer">

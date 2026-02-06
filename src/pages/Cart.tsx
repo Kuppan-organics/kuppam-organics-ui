@@ -25,9 +25,9 @@ export default function Cart() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="container pb-20 text-center py-12">
+        <div className="min-h-[40vh] flex flex-col items-center justify-center px-4 py-12 sm:py-16">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Loading cart...</p>
+          <p className="text-muted-foreground text-sm sm:text-base">Loading cart...</p>
         </div>
       </Layout>
     );
@@ -36,22 +36,27 @@ export default function Cart() {
   if (items.length === 0) {
     return (
       <Layout>
-        <div className="container pb-20 text-center py-16 md:py-24 max-w-2xl mx-auto">
-          <ShoppingBag className="h-28 w-28 md:h-36 md:w-36 mx-auto text-muted-foreground/50 mb-8 md:mb-10" />
-          <h1 className="font-heading text-4xl md:text-5xl font-bold mb-6">
-            Your cart is empty
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 md:mb-12 max-w-md mx-auto">
-            Looks like you haven't added anything to your cart yet.
-          </p>
-          <Link to="/products">
-            <Button
-              size="lg"
-              className="bg-gold hover:bg-gold/90 text-gold-foreground text-lg px-8 py-6 h-auto rounded-xl"
-            >
-              Start Shopping
-            </Button>
-          </Link>
+        <div className="min-h-[60vh] sm:min-h-[65vh] flex flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-16 md:py-24">
+          <div className="container text-center max-w-2xl mx-auto">
+            <ShoppingBag
+              className="h-20 w-20 sm:h-28 sm:w-28 md:h-36 md:w-36 mx-auto text-muted-foreground/50 mb-6 sm:mb-8 md:mb-10 flex-shrink-0"
+              aria-hidden
+            />
+            <h1 className="font-heading text-2xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-balance">
+              Your cart is empty
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 sm:mb-10 md:mb-12 max-w-md mx-auto text-balance px-1">
+              Looks like you haven't added anything to your cart yet.
+            </p>
+            <Link to="/products" className="inline-block w-full sm:w-auto">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-gold hover:bg-gold/90 text-gold-foreground text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-auto rounded-xl min-h-[48px]"
+              >
+                Start Shopping
+              </Button>
+            </Link>
+          </div>
         </div>
       </Layout>
     );

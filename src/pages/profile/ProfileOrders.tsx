@@ -5,11 +5,18 @@ import { Button } from "@/components/ui/button";
 import { useGetApiOrders } from "@/api/generated/orders/orders";
 import type { Order } from "@/api/generated/models";
 
-const statusConfig: Record<string, { icon: typeof Package; label: string; color: string }> = {
+const statusConfig: Record<
+  string,
+  { icon: typeof Package; label: string; color: string }
+> = {
   placed: { icon: Package, label: "Placed", color: "text-secondary" },
   accepted: { icon: Package, label: "Accepted", color: "text-secondary" },
   packing: { icon: Package, label: "Packing", color: "text-secondary" },
-  sent_to_delivery: { icon: Truck, label: "Out for Delivery", color: "text-gold" },
+  sent_to_delivery: {
+    icon: Truck,
+    label: "Out for Delivery",
+    color: "text-gold",
+  },
   delivered: { icon: CheckCircle, label: "Delivered", color: "text-accent" },
   cancelled: { icon: Package, label: "Cancelled", color: "text-destructive" },
   // Legacy statuses for backward compatibility
@@ -41,14 +48,19 @@ export default function ProfileOrders() {
       ) : error ? (
         <Card className="bg-card border-border/50 shadow-soft">
           <CardContent className="pt-12 pb-12 text-center">
-            <p className="text-destructive">Failed to load orders. Please try again later.</p>
+            <p className="text-destructive">
+              Failed to load orders. Please try again later.
+            </p>
           </CardContent>
         </Card>
       ) : orders.length > 0 ? (
         <div className="space-y-6">
           {orders.map((order: Order) => {
-            const orderStatus = (order.status || 'pending') as string;
-            const status = statusConfig[orderStatus] || statusConfig.pending || statusConfig.placed;
+            const orderStatus = (order.status || "pending") as string;
+            const status =
+              statusConfig[orderStatus] ||
+              statusConfig.pending ||
+              statusConfig.placed;
             const StatusIcon = status.icon;
 
             return (
@@ -60,21 +72,21 @@ export default function ProfileOrders() {
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                     <div>
                       <p className="font-heading font-semibold text-lg text-foreground">
-                        {order.id || 'N/A'}
+                        {order.id || "N/A"}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {order.statusTimeline && order.statusTimeline.length > 0
-                          ? `Ordered on ${new Date(order.statusTimeline[0].timestamp || '').toLocaleDateString('en-IN', { 
-                              day: 'numeric', 
-                              month: 'long', 
-                              year: 'numeric' 
+                          ? `Ordered on ${new Date(
+                              order.statusTimeline[0].timestamp || "",
+                            ).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
                             })}`
-                          : 'Order date not available'}
+                          : "Order date not available"}
                       </p>
                     </div>
-                    <div
-                      className={`flex items-center gap-2 ${status.color}`}
-                    >
+                    <div className={`flex items-center gap-2 ${status.color}`}>
                       <StatusIcon className="h-5 w-5" />
                       <span className="font-medium">{status.label}</span>
                     </div>
@@ -84,16 +96,17 @@ export default function ProfileOrders() {
                     {order.items?.map((item, index) => {
                       const itemPrice = item.price || 0;
                       const itemDiscount = item.discount || 0;
-                      const finalPrice = itemDiscount > 0 
-                        ? itemPrice * (1 - itemDiscount / 100) 
-                        : itemPrice;
+                      const finalPrice =
+                        itemDiscount > 0
+                          ? itemPrice * (1 - itemDiscount / 100)
+                          : itemPrice;
                       return (
                         <div
                           key={index}
                           className="flex justify-between py-2 text-foreground"
                         >
                           <span className="text-muted-foreground">
-                            {item.name || 'Product'} × {item.quantity || 1}
+                            {item.name || "Product"} × {item.quantity || 1}
                           </span>
                           <span>
                             ₹{(finalPrice * (item.quantity || 1)).toFixed(2)}
@@ -103,7 +116,7 @@ export default function ProfileOrders() {
                     })}
                     <div className="flex justify-between pt-3 border-t border-border mt-2 font-semibold text-foreground">
                       <span>Total</span>
-                      <span>₹{order.totalAmount?.toFixed(2) || '0.00'}</span>
+                      <span>₹{order.totalAmount?.toFixed(2) || "0.00"}</span>
                     </div>
                   </div>
 
