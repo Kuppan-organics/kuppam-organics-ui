@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import confetti from "canvas-confetti";
-import thankYouImage from "@/assets/image.png";
+import thankYouImage from "@/assets/guest.png";
 
 interface ShippingForm {
   firstName: string;
@@ -427,7 +427,7 @@ export default function Checkout() {
               <img
                 src={thankYouImage}
                 alt="Thank you from Kuppam Organics"
-                className="w-full h-auto object-contain max-h-[85vh]"
+                className="w-full h-auto object-contain max-h-[90vh]"
               />
             </div>
           </DialogContent>
@@ -632,7 +632,7 @@ export default function Checkout() {
                     >
                       <span className="font-medium">Pay at Store</span>
                       <span className="block text-sm text-muted-foreground">
-                        Visit our store to complete payment
+                        Pay and pick up your order from our store
                       </span>
                     </Label>
                   </div>
