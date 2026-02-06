@@ -13,6 +13,7 @@ import {
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import LazyImage from "@/components/ui/LazyImage";
+import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import {
   Collapsible,
   CollapsibleContent,
@@ -28,6 +29,7 @@ import { toast } from "@/hooks/use-toast";
 import type { Product as ApiProduct } from "@/api/generated/models";
 import type { Product } from "@/lib/types";
 import banner from "@/pages/illustrations/Breadcrumbs.png";
+import searchBg from "@/pages/illustrations/searchbg.png";
 
 // Helper function to map API product to local Product type
 const mapApiProductToProduct = (
@@ -138,7 +140,16 @@ export default function SearchResults() {
   if (!searchQuery) {
     return (
       <Layout>
-        <div className="min-h-screen bg-background pt-24">
+        <div className="min-h-screen relative pt-24">
+          <div
+            className="absolute inset-0 -z-10 min-h-full bg-cover bg-center bg-no-repeat opacity-20"
+            style={{
+              backgroundImage: `url(${searchBg})`,
+              backgroundColor: "hsl(var(--background))",
+            }}
+            aria-hidden
+          />
+          <div className="absolute inset-0 -z-[9] min-h-full bg-background/94" aria-hidden />
           <div className="container mx-auto px-4 py-12">
             <div className="text-center py-12 bg-card rounded-xl border border-border/50">
               <p className="text-muted-foreground text-sm mb-3">
@@ -163,7 +174,22 @@ export default function SearchResults() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen relative">
+        {/* Full-page search illustration background (dulled so products stand out) */}
+        <div
+          className="absolute inset-0 -z-10 min-h-full bg-cover bg-center bg-no-repeat opacity-30"
+          style={{
+            backgroundImage: `url(${searchBg})`,
+            backgroundColor: "hsl(var(--background))",
+          }}
+          aria-hidden
+        />
+        {/* Strong overlay to dull background and highlight product list */}
+        <div
+          className="absolute inset-0 -z-[9] min-h-full bg-background/94"
+          aria-hidden
+        />
+
         {/* Banner with Breadcrumb - positioned right below header */}
         <div className="relative w-full h-[200px] sm:h-[240px] overflow-hidden -mt-[100px] pt-[100px]">
           {/* Purple top border */}
@@ -412,11 +438,10 @@ export default function SearchResults() {
 
               {/* Products Grid */}
               {productsLoading ? (
-                <div className="text-center py-12 bg-card rounded-xl border border-border/50">
-                  <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-accent" />
-                  <p className="text-muted-foreground text-sm">
-                    Loading products...
-                  </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 lg:gap-6">
+                  {Array.from({ length: 9 }).map((_, index) => (
+                    <ProductCardSkeleton key={index} />
+                  ))}
                 </div>
               ) : productsError ? (
                 <div className="text-center py-12 bg-card rounded-xl border border-border/50">

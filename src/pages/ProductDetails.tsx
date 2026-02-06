@@ -8,13 +8,13 @@ import {
   Leaf,
   Truck,
   Shield,
-  Loader2,
   Star,
   Check,
 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product/ProductCard";
+import ProductDetailsSkeleton from "@/components/product/ProductDetailsSkeleton";
 import LazyImage from "@/components/ui/LazyImage";
 import {
   useGetApiProductsId,
@@ -76,10 +76,7 @@ export default function ProductDetails() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="container pb-20 text-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Loading product...</p>
-        </div>
+        <ProductDetailsSkeleton />
       </Layout>
     );
   }

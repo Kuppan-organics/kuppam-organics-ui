@@ -8,8 +8,7 @@ import {
   Mail,
   Phone,
   MapPin,
-  Share2,
-  Headphones,
+  Youtube,
 } from "lucide-react";
 import logo from "@/assets/kuppam_organics-logo.png";
 import mvpLogo from "@/assets/MVP letter head logo.png";
@@ -30,7 +29,7 @@ export default function Footer() {
           >
             <Link
               to="/home"
-              className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4"
+              className="flex flex-col sm:flex-row items-center gap-3 mb-4"
             >
               <LazyImage
                 src={logo}
@@ -146,6 +145,7 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex flex-col"
           >
             <h4 className="font-heading font-semibold text-foreground mb-4 uppercase text-sm tracking-wide">
               Follow Us
@@ -155,46 +155,51 @@ export default function Footer() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 href="#"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+                aria-label="Instagram"
               >
-                <Share2 className="h-4 w-4" />
+                <Instagram className="h-4 w-4" />
               </motion.a>
               <motion.a
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 href="#"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+                aria-label="YouTube"
               >
-                <Headphones className="h-4 w-4" />
+                <Youtube className="h-4 w-4" />
               </motion.a>
             </div>
+            {/* Powered by - below Follow Us only */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mt-8 pt-6 border-t border-border flex flex-col gap-2"
+            >
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                Powered by
+              </span>
+              <a
+                href="https://mvpinnovations.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block opacity-80 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+              >
+                <LazyImage
+                  src={mvpLogo}
+                  alt="MVP Innovations"
+                  className="h-12 w-auto object-contain max-w-[280px]"
+                />
+              </a>
+            </motion.div>
           </motion.div>
         </div>
-
-        {/* Powered by */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-12 pt-8 border-t border-border flex flex-col items-center justify-center gap-2"
-        >
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">
-            Powered by
-          </span>
-          <a
-            href="https://mvpinnovations.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block opacity-80 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-          >
-            <LazyImage
-              src={mvpLogo}
-              alt="MVP Innovations"
-              className="h-12 w-auto object-contain max-w-[280px]"
-            />
-          </a>
-        </motion.div>
       </div>
 
       {/* Bottom Bar */}

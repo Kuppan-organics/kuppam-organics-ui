@@ -24,6 +24,7 @@ import {
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product/ProductCard";
+import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import LazyImage from "@/components/ui/LazyImage";
 import {
   Collapsible,
@@ -408,11 +409,10 @@ export default function Products() {
                 </div>
 
                 {productsLoading ? (
-                  <div className="text-center py-12 bg-card rounded-xl border border-border/50">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground text-sm">
-                      Loading products...
-                    </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                    {Array.from({ length: PRODUCTS_PER_PAGE }).map((_, index) => (
+                      <ProductCardSkeleton key={index} />
+                    ))}
                   </div>
                 ) : productsError ? (
                   <div className="text-center py-12 bg-card rounded-xl border border-border/50">
