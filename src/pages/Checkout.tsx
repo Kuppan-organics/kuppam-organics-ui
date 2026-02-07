@@ -443,7 +443,7 @@ export default function Checkout() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-center font-heading text-2xl text-green-700">
-                Thank for your first order Nara Bhuvaneshwari garu
+                Thank you for your first order Nara Bhuvaneshwari garu
               </DialogTitle>
             </DialogHeader>
             <p className="text-center text-muted-foreground py-4">
