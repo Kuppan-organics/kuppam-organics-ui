@@ -162,7 +162,7 @@ export default function Footer() {
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
                 aria-label="Instagram"
               >
-                <Instagram className="h-4 w-4" />
+                <Instagram className="h-4 w-4" href="https://www.instagram.com/kuppamorganics?igsh=dTZtb2w4bzV1MXlj" target="_blank"  />
               </motion.a>
               <motion.a
                 whileHover={{ scale: 1.1 }}
@@ -173,7 +173,7 @@ export default function Footer() {
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
                 aria-label="YouTube"
               >
-                <Youtube className="h-4 w-4" />
+                <Youtube className="h-4 w-4" href="https://youtube.com/@kuppamorganics?si=FRU78wTfE3qtYC6I" target="_blank" />
               </motion.a>
             </div>
             {/* Powered by - below Follow Us only */}
