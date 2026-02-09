@@ -14,8 +14,61 @@ import {
 import { useGetApiAuthProfile } from "@/api/generated/authentication/authentication";
 import { usePostApiCouponsValidate } from "@/api/generated/coupons/coupons";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, X } from "lucide-react";
+import { Loader2, CheckCircle2, X, ChevronDown } from "lucide-react";
 import type { PostApiCouponsValidate200Coupon } from "@/api/generated/models";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+
+const INDIAN_STATES = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
+];
 
 interface ShippingForm {
   firstName: string;
@@ -63,6 +116,8 @@ export default function Checkout() {
   });
 
   const [errors, setErrors] = useState<Partial<ShippingForm>>({});
+
+  const [stateDropdownOpen, setStateDropdownOpen] = useState(false);
 
   // Coupon state
   const [couponCode, setCouponCode] = useState("");
@@ -477,15 +532,46 @@ export default function Checkout() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="state">State *</Label>
-                    <Input
-                      id="state"
-                      placeholder="Karnataka"
-                      value={form.state}
-                      onChange={(e) =>
-                        handleInputChange("state", e.target.value)
-                      }
-                      className={errors.state ? "border-red-500" : ""}
-                    />
+                    <Popover open={stateDropdownOpen} onOpenChange={setStateDropdownOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="state"
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between font-normal h-10",
+                            !form.state && "text-muted-foreground/50",
+                            errors.state && "border-red-500"
+                          )}
+                        >
+                          {form.state || "Select state..."}
+                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search state..." />
+                          <CommandList>
+                            <CommandEmpty>No state found.</CommandEmpty>
+                            <CommandGroup>
+                              {INDIAN_STATES.map((state) => (
+                                <CommandItem
+                                  key={state}
+                                  value={state}
+                                  onSelect={() => {
+                                    setForm((prev) => ({ ...prev, state }));
+                                    setErrors((prev) => ({ ...prev, state: undefined }));
+                                    setStateDropdownOpen(false);
+                                  }}
+                                >
+                                  {state}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     {errors.state && (
                       <p className="text-xs text-red-500">{errors.state}</p>
                     )}

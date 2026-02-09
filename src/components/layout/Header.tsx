@@ -135,7 +135,7 @@ export default function Header() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchKeyDown}
-              className="bg-transparent border-none outline-none text-sm w-32 lg:w-40 text-foreground placeholder:text-muted-foreground"
+              className="bg-transparent border-none outline-none text-sm w-32 lg:w-40 text-foreground placeholder:text-muted-foreground/50"
             />
           </form>
 
@@ -233,7 +233,7 @@ export default function Header() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
-                  className="bg-transparent border-none outline-none text-sm flex-1 text-foreground placeholder:text-muted-foreground"
+                  className="bg-transparent border-none outline-none text-sm flex-1 text-foreground placeholder:text-muted-foreground/50"
                 />
               </form>
               {navLinks.map((link) => (

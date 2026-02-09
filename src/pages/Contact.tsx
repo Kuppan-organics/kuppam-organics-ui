@@ -55,8 +55,8 @@ export default function Contact() {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  123 Market Road, Near Bus Stand<br />
-                  Kuppam, Andhra Pradesh 517425
+                  RGS Complex, RR ROAD<br />
+                  Bairaganipalle (Rural), Andhra Pradesh 517425
                 </p>
               </div>
 
@@ -68,8 +68,7 @@ export default function Contact() {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  hello@kuppamorganics.com<br />
-                  support@kuppamorganics.com
+                  kuppamorganics@gmail.com
                 </p>
               </div>
 
@@ -81,8 +80,8 @@ export default function Contact() {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  +91 98765 43210<br />
-                  +91 98765 43211
+                  +91 9346874502 <br />
+                  +91 9182792525
                 </p>
               </div>
             </div>
@@ -138,21 +137,39 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Map Section */}
-      <section className="w-full">
-        <div className="w-full h-[500px] md:h-[600px]">
+      {/* Map Section - RGS Complex, Bairaganipalle (coordinates = visible pin in embed) */}
+      <section className="w-full relative">
+        <a
+          href="https://www.google.com/maps/search/?api=1&query=RGS+Complex%2C+RR+ROAD%2C+Bairaganipalle+%28Rural%29%2C+Andhra+Pradesh+517425"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full h-[500px] md:h-[600px] relative"
+          aria-label="Open Kuppam Organics location in Google Maps"
+        >
+          {/* Embed with lat,lng so Google shows a red pin at this spot */}
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.123456789!2d78.316667!3d12.733333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bad5b0b0b0b0b0b%3A0x0!2sKuppam%2C%20Andhra%20Pradesh!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
+            src="https://www.google.com/maps?q=RGS+Complex,RR+ROAD,Bairaganipalle+(Rural),Andhra+Pradesh+517425&output=embed&z=16"
             width="100%"
             height="100%"
-            style={{ border: 0 }}
+            style={{ border: 0, pointerEvents: 'none' }}
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             className="w-full h-full"
-            title="Kuppam Organics Location"
+            title="Kuppam Organics Location - RGS Complex, Bairaganipalle"
           />
-        </div>
+          {/* On-page marker so the location is always visible */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full pointer-events-none flex flex-col items-center">
+            <div className="w-10 h-10 rounded-full bg-red-600 border-4 border-white shadow-lg flex items-center justify-center">
+              <MapPin className="h-5 w-5 text-white" />
+            </div>
+            <div className="mt-1 px-3 py-1.5 bg-white/95 backdrop-blur rounded-lg shadow-md text-center whitespace-nowrap">
+              <span className="text-sm font-semibold text-foreground">Kuppam Organics</span>
+              <br />
+              <span className="text-xs text-muted-foreground">RGS Complex, RR ROAD</span>
+            </div>
+          </div>
+        </a>
       </section>
     </Layout>
   );
