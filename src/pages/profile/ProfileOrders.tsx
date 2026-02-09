@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Package, Truck, CheckCircle, Loader2 } from "lucide-react";
+import { Package, Truck, CheckCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGetApiOrders } from "@/api/generated/orders/orders";
+import ProfileOrdersSkeleton from "@/components/profile/ProfileOrdersSkeleton";
 import type { Order } from "@/api/generated/models";
 
 const statusConfig: Record<
@@ -25,7 +26,7 @@ const statusConfig: Record<
 };
 
 export default function ProfileOrders() {
-  const { data: ordersData, isLoading, error } = useGetApiOrders();
+  const { data: ordersData, isLoading, isError } = useGetApiOrders();
   const orders = ordersData?.orders || [];
   return (
     <div className="space-y-6 pt-6">
@@ -39,13 +40,8 @@ export default function ProfileOrders() {
       </div>
 
       {isLoading ? (
-        <Card className="bg-card border-border/50 shadow-soft">
-          <CardContent className="pt-12 pb-12 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">Loading orders...</p>
-          </CardContent>
-        </Card>
-      ) : error ? (
+        <ProfileOrdersSkeleton />
+      ) : isError ? (
         <Card className="bg-card border-border/50 shadow-soft">
           <CardContent className="pt-12 pb-12 text-center">
             <p className="text-destructive">

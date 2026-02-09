@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useGetApiAuthProfile } from "@/api/generated/authentication/authentication";
 import { useGetApiOrders } from "@/api/generated/orders/orders";
 import { queryConfig } from "@/lib/queryConfig";
-import { Loader2 } from "lucide-react";
+import ProfileDashboardSkeleton from "@/components/profile/ProfileDashboardSkeleton";
 import type { Order, UserAddress } from "@/api/generated/models";
 
 const statusLabels: Record<string, string> = {
@@ -70,11 +70,7 @@ export default function Dashboard() {
   };
 
   if (profileLoading || ordersLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <ProfileDashboardSkeleton />;
   }
 
   return (

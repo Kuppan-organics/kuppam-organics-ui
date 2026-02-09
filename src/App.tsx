@@ -30,10 +30,6 @@ import ProfileOrders from "./pages/profile/ProfileOrders";
 import ProfileOrderDetails from "./pages/profile/ProfileOrderDetails";
 import ProfileCart from "./pages/profile/ProfileCart";
 import Settings from "./pages/profile/Settings";
-// Admin pages commented out - Admin functionality moved to separate app
-// import AdminDashboard from "./pages/admin/Dashboard";
-// import AdminProducts from "./pages/admin/Products";
-// import AdminOrders from "./pages/admin/Orders";
 import SearchResults from "./pages/SearchResults";
 
 // Create query client with optimized caching configuration

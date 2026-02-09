@@ -1,8 +1,9 @@
 import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft, Package, Truck, CheckCircle, Loader2, MapPin, CreditCard } from "lucide-react";
+import { ArrowLeft, Package, Truck, CheckCircle, MapPin, CreditCard } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGetApiOrdersId } from "@/api/generated/orders/orders";
+import ProfileOrderDetailsSkeleton from "@/components/profile/ProfileOrderDetailsSkeleton";
 import type { OrderStatusTimelineItem } from "@/api/generated/models";
 import { cn } from "@/lib/utils";
 
@@ -158,23 +159,14 @@ export default function ProfileOrderDetails() {
     return <Navigate to="/profile/orders" replace />;
   }
 
-  const { data: orderData, isLoading, error } = useGetApiOrdersId(id);
+  const { data: orderData, isLoading, isError } = useGetApiOrdersId(id);
   const order = orderData?.order;
 
   if (isLoading) {
-    return (
-      <div className="space-y-6 pt-6">
-        <Card className="bg-card border-border/50 shadow-soft">
-          <CardContent className="pt-12 pb-12 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">Loading order details...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ProfileOrderDetailsSkeleton />;
   }
 
-  if (error || !order) {
+  if (isError || !order) {
     return (
       <div className="space-y-6 pt-6">
         <Card className="bg-card border-border/50 shadow-soft">

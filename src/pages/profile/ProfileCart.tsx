@@ -1,6 +1,6 @@
-import { Navigate } from "react-router-dom";
+import CartContent from "@/components/cart/CartContent";
 
-// Redirect to main cart page
+/** Cart page inside profile layout (sidebar + main). */
 export default function ProfileCart() {
-  return <Navigate to="/cart" replace />;
+  return <CartContent variant="embedded" />;
 }
