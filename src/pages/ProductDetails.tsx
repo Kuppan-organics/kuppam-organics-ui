@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -73,6 +73,7 @@ export default function ProductDetails() {
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [editingComment, setEditingComment] = useState("");
   const [deleteReviewId, setDeleteReviewId] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { addItem } = useCart();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -116,6 +117,24 @@ export default function ProductDetails() {
       ...queryConfig.productDetails,
     },
   });
+
+  // Reset selected image when product changes
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [id]);
+
+  // Auto-advance carousel every 5s when product has multiple images
+  useEffect(() => {
+    if (!productData?.product) return;
+    const images = productData.product.images?.filter(Boolean) ?? [];
+    const urls =
+      images.length > 0 ? images : [productData.product.images?.[0] || "/placeholder.svg"];
+    if (urls.length <= 1) return;
+    const interval = setInterval(() => {
+      setSelectedImageIndex((i) => (i + 1) % urls.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [id, productData?.product?.images]);
 
   // Post review (logged-in users only)
   const postReviewMutation = usePostApiReviews({
@@ -277,6 +296,12 @@ export default function ProductDetails() {
         )
       : 0);
 
+  // Normalized image list (at least one URL for main display)
+  const rawImages = (apiProduct.images ?? []).filter((u): u is string => Boolean(u));
+  const imageUrls =
+    rawImages.length > 0 ? rawImages : [apiProduct.images?.[0] || product.image];
+  const hasMultipleImages = imageUrls.length > 1;
+
   // Rating and review count from reviews API (Review model has no rating field)
   const reviews = reviewsData?.reviews ?? [];
   const reviewCount = reviewsData?.count ?? reviews.length;
@@ -362,25 +387,50 @@ export default function ProductDetails() {
       <section className="py-12 bg-background">
         <div className="container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Image Panel */}
-            <div className="relative">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-muted/30 shadow-card relative">
-                <LazyImage
-                  src={apiProduct.images?.[0] || product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  eager={true}
-                />
-                {/* Labels */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                  <span className="px-3 py-1 rounded-full bg-[#90EE90]/80 text-[#2d5016] text-xs font-semibold">
-                    Farm Fresh
-                  </span>
-                  {discountPercentage > 0 && (
-                    <span className="px-3 py-1 rounded-full bg-orange-400 text-white text-xs font-semibold">
-                      -{discountPercentage}% OFF
+            {/* Image Panel: main image + optional thumbnail sidebar when multiple images */}
+            <div className="relative flex gap-3">
+              {hasMultipleImages && (
+                <div className="hidden sm:flex flex-col gap-2 shrink-0 w-16 lg:w-20">
+                  {imageUrls.map((url, index) => (
+                    <button
+                      key={`${url}-${index}`}
+                      type="button"
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`aspect-square rounded-lg overflow-hidden border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        selectedImageIndex === index
+                          ? "border-primary ring-2 ring-primary/20"
+                          : "border-transparent hover:border-muted-foreground/30"
+                      }`}
+                      aria-label={`View image ${index + 1}`}
+                    >
+                      <LazyImage
+                        src={url}
+                        alt={`${product.name} view ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="relative flex-1 min-w-0">
+                <div className="aspect-square rounded-2xl overflow-hidden bg-muted/30 shadow-card relative">
+                  <LazyImage
+                    src={imageUrls[selectedImageIndex]}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    eager={true}
+                  />
+                  {/* Labels */}
+                  <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                    <span className="px-3 py-1 rounded-full bg-[#90EE90]/80 text-[#2d5016] text-xs font-semibold">
+                      Farm Fresh
                     </span>
-                  )}
+                    {discountPercentage > 0 && (
+                      <span className="px-3 py-1 rounded-full bg-orange-400 text-white text-xs font-semibold">
+                        -{discountPercentage}% OFF
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
