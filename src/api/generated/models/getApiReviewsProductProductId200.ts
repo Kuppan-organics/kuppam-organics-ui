@@ -5,9 +5,10 @@
  * A comprehensive REST API for an organic products e-commerce platform
  * OpenAPI spec version: 1.0.0
  */
+import type { Review } from './review';
 
-export type OrderStatusTimelineItem = {
-  status?: string;
-  timestamp?: string;
-  note?: string;
+export type GetApiReviewsProductProductId200 = {
+  success?: boolean;
+  count?: number;
+  reviews?: Review[];
 };

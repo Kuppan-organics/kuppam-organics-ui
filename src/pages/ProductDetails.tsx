@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Minus,
@@ -10,9 +11,23 @@ import {
   Shield,
   Star,
   Check,
+  MessageSquare,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import ProductCard from "@/components/product/ProductCard";
 import ProductDetailsSkeleton from "@/components/product/ProductDetailsSkeleton";
 import LazyImage from "@/components/ui/LazyImage";
@@ -20,11 +35,21 @@ import {
   useGetApiProductsId,
   useGetApiProducts,
 } from "@/api/generated/products/products";
+import {
+  useGetApiReviewsProductProductId,
+  usePostApiReviews,
+  usePutApiReviewsId,
+  useDeleteApiReviewsId,
+  getGetApiReviewsProductProductIdQueryKey,
+} from "@/api/generated/reviews/reviews";
+import { useGetApiAuthProfile } from "@/api/generated/authentication/authentication";
 import { queryConfig } from "@/lib/queryConfig";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import type { Product as ApiProduct } from "@/api/generated/models";
 import type { Product } from "@/lib/types";
+
+const MAX_REVIEW_LENGTH = 200;
 
 // Helper function to map API product to local Product type
 const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
@@ -44,9 +69,20 @@ const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
+  const [reviewComment, setReviewComment] = useState("");
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [editingComment, setEditingComment] = useState("");
+  const [deleteReviewId, setDeleteReviewId] = useState<string | null>(null);
   const { addItem } = useCart();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const token = localStorage.getItem("token");
+
+  // Current user email (for showing edit/delete on own reviews)
+  const { data: profileData } = useGetApiAuthProfile({
+    query: { enabled: !!token },
+  });
+  const currentUserEmail = profileData?.user?.email ?? null;
 
   // Fetch product details with optimized caching
   const {
@@ -72,6 +108,130 @@ export default function ProductDetails() {
       },
     }
   );
+
+  // Fetch reviews for this product (only after product has loaded)
+  const { data: reviewsData } = useGetApiReviewsProductProductId(id || "", {
+    query: {
+      enabled: !!id && !!productData?.product,
+      ...queryConfig.productDetails,
+    },
+  });
+
+  // Post review (logged-in users only)
+  const postReviewMutation = usePostApiReviews({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: getGetApiReviewsProductProductIdQueryKey(id || ""),
+        });
+        setReviewComment("");
+        toast({
+          title: "Review posted",
+          description: "Thank you for your review!",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Could not post review",
+          description: "Please try again or log in if needed.",
+          variant: "destructive",
+        });
+      },
+    },
+  });
+
+  const handleSubmitReview = () => {
+    const trimmed = reviewComment.trim();
+    if (!id || !trimmed) return;
+    if (trimmed.length > MAX_REVIEW_LENGTH) {
+      toast({
+        title: "Review too long",
+        description: `Please keep your review to ${MAX_REVIEW_LENGTH} characters or less.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    postReviewMutation.mutate({
+      data: { productId: id, comment: trimmed },
+    });
+  };
+
+  const invalidateReviews = () => {
+    queryClient.invalidateQueries({
+      queryKey: getGetApiReviewsProductProductIdQueryKey(id || ""),
+    });
+  };
+
+  const putReviewMutation = usePutApiReviewsId({
+    mutation: {
+      onSuccess: () => {
+        invalidateReviews();
+        setEditingReviewId(null);
+        setEditingComment("");
+        toast({ title: "Review updated", description: "Your review has been updated." });
+      },
+      onError: () => {
+        toast({
+          title: "Could not update review",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      },
+    },
+  });
+
+  const deleteReviewMutation = useDeleteApiReviewsId({
+    mutation: {
+      onSuccess: () => {
+        invalidateReviews();
+        setDeleteReviewId(null);
+        toast({ title: "Review deleted", description: "Your review has been removed." });
+      },
+      onError: () => {
+        toast({
+          title: "Could not delete review",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      },
+    },
+  });
+
+  const handleStartEdit = (review: { _id?: string; comment?: string }) => {
+    if (review._id) {
+      setEditingReviewId(review._id);
+      setEditingComment(review.comment ?? "");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setEditingComment("");
+  };
+
+  const handleSaveEdit = () => {
+    const trimmed = editingComment.trim();
+    if (!editingReviewId || trimmed.length > MAX_REVIEW_LENGTH) {
+      if (trimmed.length > MAX_REVIEW_LENGTH) {
+        toast({
+          title: "Review too long",
+          description: `Keep your review to ${MAX_REVIEW_LENGTH} characters or less.`,
+          variant: "destructive",
+        });
+      }
+      return;
+    }
+    putReviewMutation.mutate({
+      id: editingReviewId,
+      data: { comment: trimmed },
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteReviewId) {
+      deleteReviewMutation.mutate({ id: deleteReviewId });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -117,9 +277,10 @@ export default function ProductDetails() {
         )
       : 0);
 
-  // Mock rating data (since API doesn't provide it)
-  const rating = 4.8;
-  const reviewCount = 156;
+  // Rating and review count from reviews API (Review model has no rating field)
+  const reviews = reviewsData?.reviews ?? [];
+  const reviewCount = reviewsData?.count ?? reviews.length;
+  const rating = 0; // API doesn't provide per-review rating; kept for optional future use
 
   // Parse nutritional benefits from description or use default
   const getNutritionalBenefits = () => {
@@ -231,25 +392,31 @@ export default function ProductDetails() {
                 {product.name}
               </h1>
 
-              {/* Rating */}
+              {/* Rating & Reviews count */}
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-5 w-5 ${
-                        i < Math.floor(rating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : i < rating
-                          ? "fill-yellow-400/50 text-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-foreground font-medium">{rating}</span>
+                {rating > 0 ? (
+                  <>
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-5 w-5 ${
+                            i < Math.floor(rating)
+                              ? "fill-yellow-400 text-yellow-400"
+                              : i < rating
+                              ? "fill-yellow-400/50 text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-foreground font-medium">{rating}</span>
+                  </>
+                ) : null}
                 <span className="text-muted-foreground">
-                  ({reviewCount} reviews)
+                  {reviewCount === 0
+                    ? "No reviews yet"
+                    : `(${reviewCount} review${reviewCount === 1 ? "" : "s"})`}
                 </span>
               </div>
 
@@ -370,6 +537,206 @@ export default function ProductDetails() {
               {product.description}
             </p>
           </div>
+
+          {/* Reviews Section */}
+          <div className="mt-12 pt-8 border-t border-border">
+            <h2 className="font-heading text-2xl font-bold text-foreground mb-4">
+              Customer Reviews
+            </h2>
+
+            {/* Write a review (logged-in users only) */}
+            {token && (
+              <div className="mb-8 max-w-3xl rounded-2xl border border-[#E8E0D5] bg-[#F8F5F0] p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E8E0D5]">
+                    <MessageSquare className="h-4 w-4 text-foreground/70" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-semibold text-foreground">
+                      Write a review
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Share your experience with this product
+                    </p>
+                  </div>
+                </div>
+                <Textarea
+                  placeholder="What did you think? E.g. taste, quality, delivery..."
+                  value={reviewComment}
+                  onChange={(e) =>
+                    setReviewComment(e.target.value.slice(0, MAX_REVIEW_LENGTH))
+                  }
+                  maxLength={MAX_REVIEW_LENGTH}
+                  className="min-h-[120px] resize-none rounded-xl border-[#E8E0D5] bg-background/80 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-[#C8B8A8]"
+                  disabled={postReviewMutation.isPending}
+                />
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <span
+                    className={`text-xs ${
+                      reviewComment.length >= MAX_REVIEW_LENGTH
+                        ? "text-amber-600"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {reviewComment.length}/{MAX_REVIEW_LENGTH} characters
+                  </span>
+                  <Button
+                    size="default"
+                    onClick={handleSubmitReview}
+                    disabled={
+                      !reviewComment.trim() || postReviewMutation.isPending
+                    }
+                    className="rounded-xl bg-[#6B5344] hover:bg-[#5A4538] text-white font-medium px-5"
+                  >
+                    {postReviewMutation.isPending ? "Posting..." : "Post review"}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {!token && (
+              <p className="text-muted-foreground mb-4">
+                <Link to="/login" className="text-primary hover:underline">
+                  Log in
+                </Link>{" "}
+                to write a review.
+              </p>
+            )}
+
+            {reviews.length === 0 ? (
+              <div className="max-w-3xl rounded-2xl border border-[#E8E0D5] bg-[#F8F5F0]/60 p-6 text-center">
+                <p className="text-muted-foreground">
+                  No reviews yet.
+                  {token
+                    ? " Be the first to review this product!"
+                    : " Be the first to review after logging in."}
+                </p>
+              </div>
+            ) : (
+              <div className="max-w-3xl space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  {reviewCount} review{reviewCount === 1 ? "" : "s"}
+                </p>
+                <ul className="space-y-4">
+                  {reviews.map((review, index) => {
+                    const displayName = review.userEmail ?? "Customer";
+                    const initial = (displayName.charAt(0) ?? "?").toUpperCase();
+                    const isOwnReview =
+                      !!token &&
+                      !!currentUserEmail &&
+                      review.userEmail === currentUserEmail &&
+                      !!review._id;
+                    const isEditing = editingReviewId === review._id;
+
+                    return (
+                      <li
+                        key={review._id ?? `${review.createdAt}-${index}`}
+                        className="rounded-2xl border border-[#E8E0D5] bg-[#F8F5F0] p-5 shadow-sm"
+                      >
+                        <div className="flex gap-4">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E8E0D5] text-sm font-semibold text-foreground/80">
+                            {initial}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-sm">
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                <span className="font-medium text-foreground">
+                                  {displayName}
+                                </span>
+                                {review.createdAt && (
+                                  <span className="text-muted-foreground">
+                                    ·{" "}
+                                    {new Date(
+                                      review.createdAt
+                                    ).toLocaleDateString(undefined, {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                    })}
+                                  </span>
+                                )}
+                              </div>
+                              {isOwnReview && !isEditing && (
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                                    onClick={() => handleStartEdit(review)}
+                                    title="Edit review"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                                    onClick={() => setDeleteReviewId(review._id ?? null)}
+                                    title="Delete review"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                            {isEditing ? (
+                              <div className="mt-3 space-y-2">
+                                <Textarea
+                                  value={editingComment}
+                                  onChange={(e) =>
+                                    setEditingComment(
+                                      e.target.value.slice(0, MAX_REVIEW_LENGTH)
+                                    )
+                                  }
+                                  maxLength={MAX_REVIEW_LENGTH}
+                                  className="min-h-[80px] resize-none rounded-xl border-[#E8E0D5] bg-background/80"
+                                  disabled={putReviewMutation.isPending}
+                                />
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-xs text-muted-foreground">
+                                    {editingComment.length}/{MAX_REVIEW_LENGTH}
+                                  </span>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={handleCancelEdit}
+                                      disabled={putReviewMutation.isPending}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      onClick={handleSaveEdit}
+                                      disabled={
+                                        !editingComment.trim() ||
+                                        putReviewMutation.isPending
+                                      }
+                                      className="rounded-xl bg-[#6B5344] hover:bg-[#5A4538]"
+                                    >
+                                      {putReviewMutation.isPending
+                                        ? "Saving..."
+                                        : "Save"}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              review.comment && (
+                                <p className="mt-2 text-foreground leading-relaxed">
+                                  {review.comment}
+                                </p>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -386,6 +753,32 @@ export default function ProductDetails() {
           </div>
         </section>
       )}
+
+      {/* Delete review confirmation */}
+      <AlertDialog
+        open={!!deleteReviewId}
+        onOpenChange={(open) => !open && setDeleteReviewId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete review?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove your review. This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteReviewMutation.isPending}
+            >
+              {deleteReviewMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 }

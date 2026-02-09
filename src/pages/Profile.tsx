@@ -3,7 +3,6 @@ import Layout from "@/components/layout/Layout";
 import {
   LayoutDashboard,
   Clock,
-  Heart,
   ShoppingBag,
   Settings,
   LogOut,
@@ -13,7 +12,6 @@ import { cn } from "@/lib/utils";
 const navigationItems = [
   { path: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "orders", label: "Order History", icon: Clock },
-  { path: "wishlist", label: "Wishlist", icon: Heart },
   { path: "cart", label: "Shopping Cart", icon: ShoppingBag },
   { path: "settings", label: "Settings", icon: Settings },
 ];

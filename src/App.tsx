@@ -28,7 +28,6 @@ import Profile from "./pages/Profile";
 import Dashboard from "./pages/profile/Dashboard";
 import ProfileOrders from "./pages/profile/ProfileOrders";
 import ProfileOrderDetails from "./pages/profile/ProfileOrderDetails";
-import Wishlist from "./pages/profile/Wishlist";
 import ProfileCart from "./pages/profile/ProfileCart";
 import Settings from "./pages/profile/Settings";
 // Admin pages commented out - Admin functionality moved to separate app
@@ -100,7 +99,6 @@ const App = () => (
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="orders" element={<ProfileOrders />} />
               <Route path="orders/:id" element={<ProfileOrderDetails />} />
-              <Route path="wishlist" element={<Wishlist />} />
               <Route path="cart" element={<ProfileCart />} />
               <Route path="settings" element={<Settings />} />
             </Route>

@@ -1,9 +1,38 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Quote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+const QUOTE_CONTENT = {
+  en: {
+    quote: '"We don\'t just grow food. We nurture the soil, respect the seasons, and honor the ancient traditions that made our land fertile."',
+    initial: 'S',
+    name: 'Subbu',
+    title: 'Founder, Kuppam Organics',
+    lang: 'en' as const,
+  },
+  te: {
+    quote: '"మేము కేవలం ఆహారం పండించడం కాదు. మేము నేలను పోషిస్తాము, ఋతువులను గౌరవిస్తాము, మరియు మన భూమిని సారవంతంగా చేసిన పురాతన సంప్రదాయాలను గౌరవిస్తాము."',
+    initial: 'స',
+    name: 'సుబ్బు',
+    title: 'స్థాపకుడు, కుప్పం ఆర్గానిక్స్',
+    lang: 'te' as const,
+  },
+};
+
 export default function StorySection() {
+  const [language, setLanguage] = useState<'en' | 'te'>('en');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLanguage((prev) => (prev === 'en' ? 'te' : 'en'));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const content = QUOTE_CONTENT[language];
+
   return (
     <section className="py-24 bg-primary text-primary-foreground grain-texture overflow-hidden">
       <div className="container relative">
@@ -72,17 +101,59 @@ export default function StorySection() {
               className="bg-primary-foreground/10 backdrop-blur-sm rounded-3xl p-8 border border-primary-foreground/10"
             >
               <Quote className="h-10 w-10 text-gold mb-4" />
-              <blockquote className="font-heading text-2xl md:text-3xl font-medium leading-relaxed mb-6">
-                "We don't just grow food. We nurture the soil, respect the seasons, 
-                and honor the ancient traditions that made our land fertile."
-              </blockquote>
+              <AnimatePresence mode="wait">
+                <motion.blockquote
+                  key={language}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="font-heading text-2xl md:text-3xl font-medium leading-relaxed mb-6 min-h-[4.5rem]"
+                  lang={content.lang}
+                >
+                  {content.quote}
+                </motion.blockquote>
+              </AnimatePresence>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <span className="text-gold font-heading font-bold text-xl">S</span>
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={language}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-gold font-heading font-bold text-xl"
+                    >
+                      {content.initial}
+                    </motion.span>
+                  </AnimatePresence>
                 </div>
-                <div>
-                  <p className="font-semibold">Subbu</p>
-                  <p className="text-sm text-primary-foreground/60">Founder, Kuppam Organics</p>
+                <div className="min-w-0">
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={`name-${language}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="font-semibold"
+                    >
+                      {content.name}
+                    </motion.p>
+                  </AnimatePresence>
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={`title-${language}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-sm text-primary-foreground/60"
+                    >
+                      {content.title}
+                    </motion.p>
+                  </AnimatePresence>
                 </div>
               </div>
             </motion.div>

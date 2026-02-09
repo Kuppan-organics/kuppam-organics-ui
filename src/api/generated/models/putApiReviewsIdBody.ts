@@ -6,8 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type OrderStatusTimelineItem = {
-  status?: string;
-  timestamp?: string;
-  note?: string;
+export type PutApiReviewsIdBody = {
+  /** @maxLength 200 */
+  comment: string;
 };
