@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -16,14 +16,6 @@ import { usePostApiCouponsValidate } from "@/api/generated/coupons/coupons";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, X } from "lucide-react";
 import type { PostApiCouponsValidate200Coupon } from "@/api/generated/models";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import confetti from "canvas-confetti";
-import thankYouImage from "@/assets/guest.png";
 
 interface ShippingForm {
   firstName: string;
@@ -42,43 +34,7 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState("pay_at_store");
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [showImageModal, setShowImageModal] = useState(false);
-  const [showThankYouModal, setShowThankYouModal] = useState(false);
-  const hasShownImageModalRef = useRef(false);
   const token = localStorage.getItem("token");
-
-  // When order is placed, show the thank-you image modal once
-  useEffect(() => {
-    if (orderPlaced && !hasShownImageModalRef.current) {
-      hasShownImageModalRef.current = true;
-      setShowImageModal(true);
-    }
-  }, [orderPlaced]);
-
-  // Fire confetti when image modal is open
-  useEffect(() => {
-    if (!showImageModal) return;
-    const duration = 3 * 1000;
-    const end = Date.now() + duration;
-    const frame = () => {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors: ["#d4af37", "#c9a227", "#b8860b", "#daa520"],
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors: ["#d4af37", "#c9a227", "#b8860b", "#daa520"],
-      });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    };
-    frame();
-  }, [showImageModal]);
 
   // Check if this is a buy now flow
   const buyNowState = location.state as {
@@ -406,86 +362,40 @@ export default function Checkout() {
     );
   }
 
-  // Order success state: image modal → thank you modal → final success view
+  // Order success state
   if (orderPlaced) {
-    const bothModalsClosed = !showImageModal && !showThankYouModal;
-
     return (
       <Layout>
-        {/* Modal 1: Thank you image with confetti */}
-        <Dialog
-          open={showImageModal}
-          onOpenChange={(open) => {
-            if (!open) {
-              setShowImageModal(false);
-              setShowThankYouModal(true);
-            }
-          }}
-        >
-          <DialogContent className="max-w-2xl p-0 overflow-hidden border-0 bg-transparent shadow-none">
-            <div className="relative rounded-2xl overflow-hidden bg-card/95 backdrop-blur">
-              <img
-                src={thankYouImage}
-                alt="Thank you from Kuppam Organics"
-                className="w-full h-auto object-contain max-h-[90vh]"
-              />
+        <div className="container pb-20">
+          <div className="max-w-lg mx-auto text-center py-12">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-green-600" />
             </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Modal 2: Thank you for your first order */}
-        <Dialog
-          open={showThankYouModal}
-          onOpenChange={(open) => {
-            if (!open) setShowThankYouModal(false);
-          }}
-        >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-center font-heading text-2xl text-green-700">
-                Thank for your first order Nara Bhuvaneshwari garu
-              </DialogTitle>
-            </DialogHeader>
-            <p className="text-center text-muted-foreground py-4">
-              We are grateful for your trust in Kuppam Organics. Your order has
-              been confirmed.
+            <h1 className="font-heading text-3xl font-bold mb-4 text-green-700">
+              Order Placed Successfully!
+            </h1>
+            <p className="text-muted-foreground mb-2">
+              Thank you for your order. We'll send you a confirmation email
+              shortly.
             </p>
-          </DialogContent>
-        </Dialog>
-
-        {/* Final success view (after both modals are closed) */}
-        {bothModalsClosed && (
-          <div className="container pb-20">
-            <div className="max-w-lg mx-auto text-center py-12">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-green-600" />
-              </div>
-              <h1 className="font-heading text-3xl font-bold mb-4 text-green-700">
-                Order Placed Successfully!
-              </h1>
-              <p className="text-muted-foreground mb-2">
-                Thank you for your order. We'll send you a confirmation email
-                shortly.
+            {orderId && (
+              <p className="text-sm text-muted-foreground mb-8">
+                Order ID:{" "}
+                <span className="font-mono font-medium">{orderId}</span>
               </p>
-              {orderId && (
-                <p className="text-sm text-muted-foreground mb-8">
-                  Order ID:{" "}
-                  <span className="font-mono font-medium">{orderId}</span>
-                </p>
-              )}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/profile/orders">
-                  <Button className="bg-gold hover:bg-gold/90 text-gold-foreground">
-                    View Orders
-                  </Button>
-                </Link>
-                <Link to="/products">
-                  <Button variant="outline">Continue Shopping</Button>
-                </Link>
-              </div>
+            )}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/profile/orders">
+                <Button className="bg-gold hover:bg-gold/90 text-gold-foreground">
+                  View Orders
+                </Button>
+              </Link>
+              <Link to="/products">
+                <Button variant="outline">Continue Shopping</Button>
+              </Link>
             </div>
           </div>
-        )}
+        </div>
       </Layout>
     );
   }
