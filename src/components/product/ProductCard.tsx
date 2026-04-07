@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Product } from "@/lib/types";
+import { Product, ProductVariant } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
@@ -22,13 +23,36 @@ export default function ProductCard({ product }: ProductCardProps) {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
+  const hasVariants = (product.variants?.length ?? 0) > 0;
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+    hasVariants ? product.variants![0] : null
+  );
+
+  // Compute display price/weight based on selected variant
+  const variantDiscountedPrice = selectedVariant
+    ? selectedVariant.discount > 0
+      ? selectedVariant.price * (1 - selectedVariant.discount / 100)
+      : selectedVariant.price
+    : null;
+  const displayPrice = variantDiscountedPrice ?? product.price;
+  const displayOriginalPrice = selectedVariant?.discount > 0
+    ? selectedVariant.price
+    : product.originalPrice;
+  const displayWeight = selectedVariant ? selectedVariant.quantity : product.weight;
+  const isVariantInStock = selectedVariant ? selectedVariant.stock > 0 : product.inStock;
+
+  // Build a product-like object reflecting the current variant selection for cart/checkout
+  const effectiveProduct = selectedVariant
+    ? { ...product, price: displayPrice, originalPrice: displayOriginalPrice, weight: displayWeight }
+    : product;
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem(product);
+    addItem(effectiveProduct);
     toast({
       title: "Added to Cart",
-      description: `${product.name} has been added to your cart.`,
+      description: `${product.name}${selectedVariant ? ` (${selectedVariant.quantity})` : ""} has been added to your cart.`,
     });
   };
 
@@ -36,7 +60,6 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    // Check if user is logged in
     if (!token) {
       toast({
         title: "Login Required",
@@ -49,7 +72,6 @@ export default function ProductCard({ product }: ProductCardProps) {
       return;
     }
 
-    // Navigate to checkout with buy now info
     navigate("/checkout", {
       state: {
         buyNow: true,
@@ -57,8 +79,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         quantity: 1,
         product: {
           id: product.id,
-          name: product.name,
-          price: product.price,
+          name: `${product.name}${selectedVariant ? ` (${selectedVariant.quantity})` : ""}`,
+          price: displayPrice,
           image: product.image,
         },
       },
@@ -115,21 +137,49 @@ export default function ProductCard({ product }: ProductCardProps) {
             </p>
           )}
 
-          {/* Price and Actions */}
+          {/* Variant Selector */}
+          {hasVariants && (
+            <div
+              className="flex flex-wrap gap-1.5 mb-3"
+              onClick={(e) => e.preventDefault()}
+            >
+              {product.variants!.map((variant, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedVariant(variant);
+                  }}
+                  disabled={variant.stock === 0}
+                  className={`px-2 py-0.5 rounded text-[11px] font-medium border transition-all ${
+                    selectedVariant?.quantity === variant.quantity
+                      ? "bg-[#5D4037] text-white border-[#5D4037]"
+                      : variant.stock === 0
+                      ? "text-muted-foreground border-border/40 line-through opacity-50 cursor-not-allowed"
+                      : "text-foreground border-border hover:border-[#5D4037] hover:text-[#5D4037]"
+                  }`}
+                >
+                  {variant.quantity}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Price and Weight */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-baseline gap-2">
               <span className="font-bold text-lg text-foreground">
-                ₹{(Math.round(product.price * 10) / 10).toFixed(1)}
+                ₹{(Math.round(displayPrice * 10) / 10).toFixed(1)}
               </span>
-              {product.originalPrice && (
+              {displayOriginalPrice && (
                 <span className="text-xs text-muted-foreground line-through">
-                  ₹{product.originalPrice}
+                  ₹{displayOriginalPrice}
                 </span>
               )}
             </div>
-            <span className="text-xs text-muted-foreground">
-              {product.weight}
-            </span>
+            <span className="text-xs text-muted-foreground">{displayWeight}</span>
           </div>
 
           {/* Action Buttons */}
@@ -139,6 +189,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               variant="outline"
               className="flex-1 border-border hover:bg-muted text-xs h-8"
               onClick={handleAddToCart}
+              disabled={!isVariantInStock}
             >
               Add to Cart
             </Button>
@@ -146,6 +197,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               size="sm"
               className="flex-1 bg-gold hover:bg-gold/90 text-gold-foreground text-xs h-8"
               onClick={handleBuyNow}
+              disabled={!isVariantInStock}
             >
               Buy
             </Button>

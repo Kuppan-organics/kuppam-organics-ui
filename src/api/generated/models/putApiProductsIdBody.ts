@@ -14,5 +14,8 @@ export type PutApiProductsIdBody = {
   discount?: number;
   images?: string[];
   stock?: number;
+  quantity?: string;
+  framingMethods?: string[];
+  nutritionalBenefits?: string[];
   isActive?: boolean;
 };

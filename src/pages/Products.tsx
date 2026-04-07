@@ -89,6 +89,16 @@ const carouselContent = [
 
 // Helper function to map API product to local Product type
 const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
+  const raw = apiProduct as any;
+  const variants = raw.variants?.length
+    ? raw.variants.map((v: any) => ({
+        quantity: v.quantity || "",
+        price: v.price || 0,
+        discount: v.discount || 0,
+        stock: v.stock || 0,
+      }))
+    : undefined;
+
   return {
     id: apiProduct.id || "",
     name: apiProduct.name,
@@ -97,8 +107,9 @@ const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
     originalPrice: apiProduct.discountedPrice ? apiProduct.price : undefined,
     image: apiProduct.images?.[0] || "/placeholder.svg",
     category: apiProduct.category?.toLowerCase() || "uncategorized",
-    weight: "1 kg", // Default weight, can be updated if API provides it
+    weight: raw.quantity || "1 kg",
     inStock: (apiProduct.stock || 0) > 0,
+    variants,
   };
 };
 

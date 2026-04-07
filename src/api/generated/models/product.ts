@@ -6,6 +6,21 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export interface ProductVariant {
+  /** Variant quantity descriptor (e.g., '200g', '400g') */
+  quantity: string;
+  /** Variant price */
+  price: number;
+  /** Variant discount percentage (0-100) */
+  discount?: number;
+  /** Available stock for this variant */
+  stock?: number;
+  /** Auto-generated variant ID */
+  _id?: string;
+  /** Variant ID */
+  id?: string;
+}
+
 export interface Product {
   /** Auto-generated product ID */
   id?: string;
@@ -25,6 +40,14 @@ export interface Product {
   images?: string[];
   /** Available stock */
   stock?: number;
+  /** Quantity descriptor (e.g., '1kg', '500g') */
+  quantity?: string;
+  /** Array of product variants with different quantities */
+  variants?: ProductVariant[];
+  /** Array of farming/framing methods */
+  framingMethods?: string[];
+  /** Array of nutritional benefits (min 3 if provided) */
+  nutritionalBenefits?: string[];
   isActive?: boolean;
   /** ID of the admin who created the product */
   createdBy?: string;

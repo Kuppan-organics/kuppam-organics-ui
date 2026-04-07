@@ -69,6 +69,7 @@ const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [reviewComment, setReviewComment] = useState("");
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [editingComment, setEditingComment] = useState("");
@@ -107,7 +108,7 @@ export default function ProductDetails() {
         ...queryConfig.products,
         enabled: !!productData?.product?.category,
       },
-    }
+    },
   );
 
   // Fetch reviews for this product (only after product has loaded)
@@ -128,7 +129,9 @@ export default function ProductDetails() {
     if (!productData?.product) return;
     const images = productData.product.images?.filter(Boolean) ?? [];
     const urls =
-      images.length > 0 ? images : [productData.product.images?.[0] || "/placeholder.svg"];
+      images.length > 0
+        ? images
+        : [productData.product.images?.[0] || "/placeholder.svg"];
     if (urls.length <= 1) return;
     const interval = setInterval(() => {
       setSelectedImageIndex((i) => (i + 1) % urls.length);
@@ -187,7 +190,10 @@ export default function ProductDetails() {
         invalidateReviews();
         setEditingReviewId(null);
         setEditingComment("");
-        toast({ title: "Review updated", description: "Your review has been updated." });
+        toast({
+          title: "Review updated",
+          description: "Your review has been updated.",
+        });
       },
       onError: () => {
         toast({
@@ -204,7 +210,10 @@ export default function ProductDetails() {
       onSuccess: () => {
         invalidateReviews();
         setDeleteReviewId(null);
-        toast({ title: "Review deleted", description: "Your review has been removed." });
+        toast({
+          title: "Review deleted",
+          description: "Your review has been removed.",
+        });
       },
       onError: () => {
         toast({
@@ -292,14 +301,18 @@ export default function ProductDetails() {
     (product.originalPrice && product.price
       ? Math.round(
           ((product.originalPrice - product.price) / product.originalPrice) *
-            100
+            100,
         )
       : 0);
 
   // Normalized image list (at least one URL for main display)
-  const rawImages = (apiProduct.images ?? []).filter((u): u is string => Boolean(u));
+  const rawImages = (apiProduct.images ?? []).filter((u): u is string =>
+    Boolean(u),
+  );
   const imageUrls =
-    rawImages.length > 0 ? rawImages : [apiProduct.images?.[0] || product.image];
+    rawImages.length > 0
+      ? rawImages
+      : [apiProduct.images?.[0] || product.image];
   const hasMultipleImages = imageUrls.length > 1;
 
   // Rating and review count from reviews API (Review model has no rating field)
@@ -307,25 +320,52 @@ export default function ProductDetails() {
   const reviewCount = reviewsData?.count ?? reviews.length;
   const rating = 0; // API doesn't provide per-review rating; kept for optional future use
 
-  // Parse nutritional benefits from description or use default
-  const getNutritionalBenefits = () => {
-    if (product.nutritionalInfo) {
-      // Try to parse comma-separated values
-      const benefits = product.nutritionalInfo.split(",").map((b) => b.trim());
-      return benefits.length > 0
-        ? benefits
-        : ["Rich in Vitamin C", "High in Lycopene", "Low Calories"];
-    }
-    return ["Rich in Vitamin C", "High in Lycopene", "Low Calories"];
-  };
+  // Get nutritional benefits from API or fallback to defaults
+  const nutritionalBenefits =
+    apiProduct.nutritionalBenefits && apiProduct.nutritionalBenefits.length > 0
+      ? apiProduct.nutritionalBenefits
+      : ["Rich in Vitamin C", "High in Lycopene", "Low Calories"];
 
-  const nutritionalBenefits = getNutritionalBenefits();
+  // Get farming methods from API
+  const farmingMethods =
+    apiProduct.framingMethods && apiProduct.framingMethods.length > 0
+      ? apiProduct.framingMethods
+      : null;
+
+  // Get current price based on selected variant
+  const currentVariant = selectedVariant
+    ? apiProduct.variants?.find(
+        (v) => v.id === selectedVariant || v._id === selectedVariant,
+      )
+    : null;
+
+  const displayPrice = currentVariant
+    ? currentVariant.price
+    : apiProduct.discountedPrice || apiProduct.price;
+  const displayOriginalPrice =
+    currentVariant && currentVariant.discount && currentVariant.discount > 0
+      ? currentVariant.price / (1 - currentVariant.discount / 100)
+      : apiProduct.discountedPrice
+        ? apiProduct.price
+        : undefined;
+  const displayQuantity = currentVariant
+    ? currentVariant.quantity
+    : apiProduct.quantity || "1 kg";
+  const displayStock = currentVariant ? currentVariant.stock : apiProduct.stock;
+  const isInStock = (displayStock || 0) > 0;
 
   const handleAddToCart = () => {
-    addItem(product, quantity);
+    // Create a product object with the currently selected variant's price
+    const productToAdd = {
+      ...product,
+      price: displayPrice,
+      originalPrice: displayOriginalPrice,
+      weight: displayQuantity,
+    };
+    addItem(productToAdd, quantity);
     toast({
       title: "Added to Cart",
-      description: `${quantity}x ${product.name} added to your cart.`,
+      description: `${quantity}x ${product.name} (${displayQuantity}) added to your cart.`,
     });
   };
 
@@ -361,8 +401,9 @@ export default function ProductDetails() {
         product: {
           id: product.id,
           name: product.name,
-          price: product.price,
+          price: displayPrice,
           image: product.image,
+          weight: displayQuantity,
         },
       },
     });
@@ -454,13 +495,15 @@ export default function ProductDetails() {
                             i < Math.floor(rating)
                               ? "fill-yellow-400 text-yellow-400"
                               : i < rating
-                              ? "fill-yellow-400/50 text-yellow-400"
-                              : "text-gray-300"
+                                ? "fill-yellow-400/50 text-yellow-400"
+                                : "text-gray-300"
                           }`}
                         />
                       ))}
                     </div>
-                    <span className="text-foreground font-medium">{rating}</span>
+                    <span className="text-foreground font-medium">
+                      {rating}
+                    </span>
                   </>
                 ) : null}
                 <span className="text-muted-foreground">
@@ -473,31 +516,90 @@ export default function ProductDetails() {
               {/* Price */}
               <div className="flex items-baseline gap-3">
                 <span className="font-heading text-4xl font-bold text-foreground">
-                  ₹{(Math.round(product.price * 10) / 10).toFixed(1)}
+                  ₹{(Math.round(displayPrice * 10) / 10).toFixed(1)}
                 </span>
-                {product.originalPrice && (
+                {displayOriginalPrice && (
                   <span className="text-xl text-muted-foreground line-through">
-                    ₹{(Math.round(product.originalPrice * 10) / 10).toFixed(1)}
+                    ₹{(Math.round(displayOriginalPrice * 10) / 10).toFixed(1)}
                   </span>
                 )}
                 <span className="text-muted-foreground text-lg">
-                  /{product.weight}
+                  /{displayQuantity}
                 </span>
               </div>
 
-              {/* Farming Method */}
-              <div className="bg-[#E8F5E9] rounded-xl p-4 border border-[#C8E6C9]">
-                <div className="flex items-center gap-2 mb-2">
-                  <Leaf className="h-5 w-5 text-[#4CAF50]" />
-                  <h3 className="font-heading font-semibold text-foreground">
-                    Farming Method
+              {/* Variants Selector */}
+              {apiProduct.variants && apiProduct.variants.length > 0 && (
+                <div>
+                  <h3 className="font-heading font-semibold text-foreground mb-3">
+                    Select Size
                   </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {/* Default quantity option */}
+                    <button
+                      onClick={() => setSelectedVariant(null)}
+                      className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                        selectedVariant === null
+                          ? "border-primary bg-primary/10 text-primary font-semibold"
+                          : "border-border hover:border-primary/50 text-foreground"
+                      }`}
+                    >
+                      <div className="text-sm">
+                        {apiProduct.quantity || "Default"}
+                      </div>
+                      <div className="text-xs font-semibold">
+                        ₹{apiProduct.discountedPrice || apiProduct.price}
+                      </div>
+                    </button>
+                    {apiProduct.variants.map((variant) => (
+                      <button
+                        key={variant.id || variant._id}
+                        onClick={() =>
+                          setSelectedVariant(variant.id || variant._id || null)
+                        }
+                        className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                          selectedVariant === (variant.id || variant._id)
+                            ? "border-primary bg-primary/10 text-primary font-semibold"
+                            : "border-border hover:border-primary/50 text-foreground"
+                        } ${(variant.stock || 0) === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+                        disabled={(variant.stock || 0) === 0}
+                      >
+                        <div className="text-sm">{variant.quantity}</div>
+                        <div className="text-xs font-semibold">
+                          ₹{variant.price}
+                        </div>
+                        {(variant.stock || 0) === 0 && (
+                          <div className="text-xs text-destructive">
+                            Out of stock
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-sm text-foreground/80">
-                  {product.farmingMethod ||
-                    "Traditional organic farming with natural compost"}
-                </p>
-              </div>
+              )}
+
+              {/* Farming Methods */}
+              {farmingMethods && farmingMethods.length > 0 && (
+                <div className="bg-[#E8F5E9] rounded-xl p-4 border border-[#C8E6C9]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Leaf className="h-5 w-5 text-[#4CAF50]" />
+                    <h3 className="font-heading font-semibold text-foreground">
+                      Farming Methods
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {farmingMethods.map((method, index) => (
+                      <span
+                        key={index}
+                        className="text-sm text-foreground/80 bg-white/60 px-3 py-1 rounded-full"
+                      >
+                        {method}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Nutritional Benefits */}
               <div>
@@ -545,22 +647,33 @@ export default function ProductDetails() {
                 </div>
               </div>
 
+              {/* Stock Status */}
+              {!isInStock && (
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                  <p className="text-destructive text-sm font-medium">
+                    Out of Stock
+                  </p>
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
                 <Button
                   size="lg"
                   className="bg-gold hover:bg-gold/90 text-gold-foreground font-semibold w-full py-6 text-lg rounded-xl"
                   onClick={handleAddToCart}
+                  disabled={!isInStock}
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
-                  Add to Cart
+                  {isInStock ? "Add to Cart" : "Out of Stock"}
                 </Button>
                 <Button
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold w-full py-6 text-lg rounded-xl"
                   onClick={handleBuyNow}
+                  disabled={!isInStock}
                 >
-                  Buy Now
+                  {isInStock ? "Buy Now" : "Out of Stock"}
                 </Button>
               </div>
 
@@ -638,7 +751,9 @@ export default function ProductDetails() {
                     }
                     className="rounded-xl bg-[#6B5344] hover:bg-[#5A4538] text-white font-medium px-5"
                   >
-                    {postReviewMutation.isPending ? "Posting..." : "Post review"}
+                    {postReviewMutation.isPending
+                      ? "Posting..."
+                      : "Post review"}
                   </Button>
                 </div>
               </div>
@@ -670,7 +785,9 @@ export default function ProductDetails() {
                 <ul className="space-y-4">
                   {reviews.map((review, index) => {
                     const displayName = review.userEmail ?? "Customer";
-                    const initial = (displayName.charAt(0) ?? "?").toUpperCase();
+                    const initial = (
+                      displayName.charAt(0) ?? "?"
+                    ).toUpperCase();
                     const isOwnReview =
                       !!token &&
                       !!currentUserEmail &&
@@ -697,7 +814,7 @@ export default function ProductDetails() {
                                   <span className="text-muted-foreground">
                                     ·{" "}
                                     {new Date(
-                                      review.createdAt
+                                      review.createdAt,
                                     ).toLocaleDateString(undefined, {
                                       year: "numeric",
                                       month: "short",
@@ -721,7 +838,9 @@ export default function ProductDetails() {
                                     variant="ghost"
                                     size="sm"
                                     className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-                                    onClick={() => setDeleteReviewId(review._id ?? null)}
+                                    onClick={() =>
+                                      setDeleteReviewId(review._id ?? null)
+                                    }
                                     title="Delete review"
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -735,7 +854,10 @@ export default function ProductDetails() {
                                   value={editingComment}
                                   onChange={(e) =>
                                     setEditingComment(
-                                      e.target.value.slice(0, MAX_REVIEW_LENGTH)
+                                      e.target.value.slice(
+                                        0,
+                                        MAX_REVIEW_LENGTH,
+                                      ),
                                     )
                                   }
                                   maxLength={MAX_REVIEW_LENGTH}

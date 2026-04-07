@@ -1,3 +1,10 @@
+export interface ProductVariant {
+  quantity: string;
+  price: number;
+  discount: number;
+  stock: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -11,6 +18,7 @@ export interface Product {
   inStock: boolean;
   nutritionalInfo?: string;
   farmingMethod?: string;
+  variants?: ProductVariant[];
 }
 
 export interface CartItem extends Product {
