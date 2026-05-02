@@ -191,7 +191,7 @@ export default function Footer() {
                 Powered by
               </span>
               <a
-                href="https://mvpinnovations.com"
+                href="https://mvpinnovations.in"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block opacity-80 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded max-w-full min-w-0"

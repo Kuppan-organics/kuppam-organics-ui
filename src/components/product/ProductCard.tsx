@@ -23,7 +23,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  const hasVariants = (product.variants?.length ?? 0) > 0;
+  // Only treat as multi-variant if there are 2+ variants; single-variant products
+  // are stored as regular products and should use product.inStock for availability.
+  const hasVariants = (product.variants?.length ?? 0) > 1;
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     hasVariants ? product.variants![0] : null
   );
@@ -187,7 +189,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Button
               size="sm"
               variant="outline"
-              className="flex-1 border-border hover:bg-muted text-xs h-8"
+              className="flex-1 border-[#9C6B3D]/60 text-[#5D4037] hover:bg-[#9C6B3D]/10 hover:border-[#9C6B3D] font-medium text-xs h-8"
               onClick={handleAddToCart}
               disabled={!isVariantInStock}
             >
@@ -195,7 +197,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </Button>
             <Button
               size="sm"
-              className="flex-1 bg-gold hover:bg-gold/90 text-gold-foreground text-xs h-8"
+              className="flex-1 bg-[#C89B3C] hover:bg-[#B88A2F] text-[#2E1A0F] font-semibold text-xs h-8"
               onClick={handleBuyNow}
               disabled={!isVariantInStock}
             >

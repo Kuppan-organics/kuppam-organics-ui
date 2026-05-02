@@ -24,7 +24,7 @@ interface CartContextType {
   totalItems: number;
   totalPrice: number;
   isLoading: boolean;
-  syncLocalCartToAPI: () => Promise<void>;
+  syncLocalCartToAPI: (authToken?: string) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -40,7 +40,7 @@ const mapApiCartItemToCartItem = (apiItem: ApiCartItem, index: number): CartItem
     image: apiItem.product.images?.[0] || '/placeholder.svg',
     category: apiItem.product.category?.toLowerCase() || "uncategorized",
     weight: '1 kg',
-    inStock: (apiItem.product.stock || 0) > 0,
+    inStock: (apiItem.product as any).isActive === true || (apiItem.product.stock || 0) > 0,
     quantity: apiItem.quantity || 1,
   };
 };
@@ -129,8 +129,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   });
 
   // Sync localStorage cart to API when user logs in
-  const syncLocalCartToAPI = useCallback(async () => {
-    if (!token || localCartItems.length === 0) return;
+  // authToken can be passed directly (e.g. right after login before state updates)
+  const syncLocalCartToAPI = useCallback(async (authToken?: string) => {
+    const effectiveToken = authToken || token;
+    if (!effectiveToken || localCartItems.length === 0) return;
 
     try {
       // First, fetch the current API cart to see what's already there
@@ -139,7 +141,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         queryFn: async () => {
           const response = await fetch('https://kuppams-backend.onrender.com/api/cart', {
             headers: {
-              'Authorization': `Bearer ${token}`,
+              'Authorization': `Bearer ${effectiveToken}`,
               'Content-Type': 'application/json',
             },
           });

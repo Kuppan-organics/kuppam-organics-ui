@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Apple,
   Carrot,
@@ -9,7 +9,7 @@ import {
   Cake,
   Milk,
   ChefHat,
-  Plus,
+  LayoutGrid,
   ArrowRight,
   Truck,
   Headphones,
@@ -17,7 +17,6 @@ import {
   Gift,
   ChevronLeft,
   ChevronRight,
-  Loader2,
   Filter,
   ChevronDown,
 } from "lucide-react";
@@ -43,23 +42,31 @@ import bgImage from "@/pages/illustrations/bg.png";
 import type { Product as ApiProduct } from "@/api/generated/models";
 import type { Product } from "@/lib/types";
 
-interface CategoryItem {
-  id: string;
-  name: string;
-  icon: typeof Apple;
-}
+const categoryIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  fruits: Apple,
+  "fresh fruit": Apple,
+  "dry fruits": Apple,
+  vegetables: Carrot,
+  "pickles & veg & non-veg": Carrot,
+  fish: Fish,
+  "river fish": Fish,
+  meat: Drumstick,
+  "chicken & meat": Drumstick,
+  drinks: CupSoda,
+  "drink & water": CupSoda,
+  yogurt: IceCream,
+  "yogurt & ice cream": IceCream,
+  "sweets & confectionery": Cake,
+  cake: Cake,
+  "cake & bread": Cake,
+  butter: Milk,
+  "butter & cream": Milk,
+  cooking: ChefHat,
+  "powders & spices": ChefHat,
+};
 
-const categoryItems: CategoryItem[] = [
-  { id: "fruits", name: "Fresh Fruit", icon: Apple },
-  { id: "vegetables", name: "Vegetables", icon: Carrot },
-  { id: "fish", name: "River Fish", icon: Fish },
-  { id: "meat", name: "Chicken & Meat", icon: Drumstick },
-  { id: "drinks", name: "Drink & Water", icon: CupSoda },
-  { id: "yogurt", name: "Yogurt & Ice Cream", icon: IceCream },
-  { id: "cake", name: "Cake & Bread", icon: Cake },
-  { id: "butter", name: "Butter & Cream", icon: Milk },
-  { id: "cooking", name: "Cooking", icon: ChefHat },
-];
+const getCategoryIcon = (name: string) =>
+  categoryIconMap[name.toLowerCase()] ?? ShoppingBag;
 
 const carouselImages = [caresole, caresole1, caresole3];
 
@@ -108,16 +115,43 @@ const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
     image: apiProduct.images?.[0] || "/placeholder.svg",
     category: apiProduct.category?.toLowerCase() || "uncategorized",
     weight: raw.quantity || "1 kg",
-    inStock: (apiProduct.stock || 0) > 0,
+    inStock: (raw as any).isActive === true || (apiProduct.stock || 0) > 0,
     variants,
   };
 };
 
 const PRODUCTS_PER_PAGE = 10;
 
+const getPageNumbers = (
+  currentPage: number,
+  totalPages: number
+): (number | "...")[] => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  const pages: (number | "...")[] = [];
+  if (currentPage <= 4) {
+    for (let i = 1; i <= 5; i++) pages.push(i);
+    pages.push("...");
+    pages.push(totalPages);
+  } else if (currentPage >= totalPages - 3) {
+    pages.push(1);
+    pages.push("...");
+    for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    pages.push("...");
+    pages.push(currentPage - 1);
+    pages.push(currentPage);
+    pages.push(currentPage + 1);
+    pages.push("...");
+    pages.push(totalPages);
+  }
+  return pages;
+};
+
 export default function Products() {
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>("vegetables");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -134,8 +168,7 @@ export default function Products() {
     error: productsError,
   } = useGetApiProducts(
     {
-      category:
-        selectedCategory !== "vegetables" ? selectedCategory : undefined,
+      category: selectedCategory || undefined,
       page,
       limit: PRODUCTS_PER_PAGE,
     },
@@ -306,32 +339,33 @@ export default function Products() {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <div className="space-y-1 overflow-y-auto pb-2">
-                      {categoryItems.map((category) => {
-                        const Icon = category.icon;
-                        const isSelected = selectedCategory === category.id;
+                      {/* All Products */}
+                      <button
+                        onClick={() => { setSelectedCategory(""); setIsFilterOpen(false); }}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                          selectedCategory === ""
+                            ? "bg-[#5D4037] text-white font-medium shadow-sm"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <LayoutGrid className={`h-4 w-4 ${selectedCategory === "" ? "text-white" : "text-muted-foreground"}`} />
+                        <span className="flex-1 text-left">All Products</span>
+                      </button>
+                      {((categoriesData as any)?.categories as string[] | undefined)?.map((cat) => {
+                        const Icon = getCategoryIcon(cat);
+                        const isSelected = selectedCategory === cat;
                         return (
                           <button
-                            key={category.id}
-                            onClick={() => {
-                              setSelectedCategory(category.id);
-                              setIsFilterOpen(false);
-                            }}
+                            key={cat}
+                            onClick={() => { setSelectedCategory(cat); setIsFilterOpen(false); }}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                               isSelected
                                 ? "bg-[#5D4037] text-white font-medium shadow-sm"
                                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             }`}
                           >
-                            <Icon
-                              className={`h-4 w-4 ${
-                                isSelected
-                                  ? "text-white"
-                                  : "text-muted-foreground"
-                              }`}
-                            />
-                            <span className="flex-1 text-left">
-                              {category.name}
-                            </span>
+                            <Icon className={`h-4 w-4 ${isSelected ? "text-white" : "text-muted-foreground"}`} />
+                            <span className="flex-1 text-left">{cat}</span>
                           </button>
                         );
                       })}
@@ -345,38 +379,36 @@ export default function Products() {
                     Categories
                   </h2>
                   <div className="space-y-1 flex-1 overflow-y-auto">
-                    {categoryItems.map((category) => {
-                      const Icon = category.icon;
-                      const isSelected = selectedCategory === category.id;
+                    {/* All Products */}
+                    <button
+                      onClick={() => setSelectedCategory("")}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                        selectedCategory === ""
+                          ? "bg-[#5D4037] text-white font-medium shadow-sm"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <LayoutGrid className={`h-4 w-4 ${selectedCategory === "" ? "text-white" : "text-muted-foreground"}`} />
+                      <span className="flex-1 text-left">All Products</span>
+                    </button>
+                    {((categoriesData as any)?.categories as string[] | undefined)?.map((cat) => {
+                      const Icon = getCategoryIcon(cat);
+                      const isSelected = selectedCategory === cat;
                       return (
                         <button
-                          key={category.id}
-                          onClick={() => setSelectedCategory(category.id)}
+                          key={cat}
+                          onClick={() => setSelectedCategory(cat)}
                           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                             isSelected
                               ? "bg-[#5D4037] text-white font-medium shadow-sm"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground"
                           }`}
                         >
-                          <Icon
-                            className={`h-4 w-4 ${
-                              isSelected
-                                ? "text-white"
-                                : "text-muted-foreground"
-                            }`}
-                          />
-                          <span className="flex-1 text-left">
-                            {category.name}
-                          </span>
+                          <Icon className={`h-4 w-4 ${isSelected ? "text-white" : "text-muted-foreground"}`} />
+                          <span className="flex-1 text-left">{cat}</span>
                         </button>
                       );
                     })}
-                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
-                      <Plus className="h-4 w-4" />
-                      <span className="flex-1 text-left">
-                        View all Category
-                      </span>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -441,46 +473,77 @@ export default function Products() {
 
                     {/* Pagination */}
                     {(productsData?.pages ?? 0) > 1 && (
-                      <div className="mt-8 rounded-xl border border-border bg-card px-4 py-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <p className="text-sm text-foreground order-2 sm:order-1">
-                          Page{" "}
-                          <span className="font-semibold text-foreground">
-                            {productsData?.page ?? 1}
-                          </span>{" "}
-                          of{" "}
-                          <span className="font-semibold text-foreground">
-                            {productsData?.pages ?? 1}
-                          </span>
-                        </p>
-                        <div className="flex items-center gap-2 order-1 sm:order-2">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      <div className="mt-10 flex flex-col items-center gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                          {/* Previous */}
+                          <button
+                            onClick={() => {
+                              setPage((p) => Math.max(1, p - 1));
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
                             disabled={(productsData?.page ?? 1) <= 1}
-                            className="gap-1 border border-border shadow-sm"
+                            className="flex items-center gap-1 px-3 h-9 rounded-lg text-sm font-medium border border-[#9C6B3D]/50 text-[#5D4037] hover:bg-[#5D4037] hover:text-white hover:border-[#5D4037] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
                           >
                             <ChevronLeft className="h-4 w-4" />
-                            Previous
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() =>
+                            Prev
+                          </button>
+
+                          {/* Page numbers */}
+                          {getPageNumbers(
+                            productsData?.page ?? 1,
+                            productsData?.pages ?? 1
+                          ).map((p, i) =>
+                            p === "..." ? (
+                              <span
+                                key={`ellipsis-${i}`}
+                                className="w-9 h-9 flex items-center justify-center text-muted-foreground text-sm select-none"
+                              >
+                                …
+                              </span>
+                            ) : (
+                              <button
+                                key={p}
+                                onClick={() => {
+                                  setPage(p as number);
+                                  window.scrollTo({ top: 0, behavior: "smooth" });
+                                }}
+                                className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${
+                                  (productsData?.page ?? 1) === p
+                                    ? "bg-[#5D4037] text-white shadow-md"
+                                    : "border border-[#9C6B3D]/50 text-[#5D4037] hover:bg-[#C89B3C]/20 hover:border-[#C89B3C]"
+                                }`}
+                              >
+                                {p}
+                              </button>
+                            )
+                          )}
+
+                          {/* Next */}
+                          <button
+                            onClick={() => {
                               setPage((p) =>
                                 Math.min(productsData?.pages ?? 1, p + 1)
-                              )
-                            }
+                              );
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
                             disabled={
                               (productsData?.page ?? 1) >=
                               (productsData?.pages ?? 1)
                             }
-                            className="gap-1 border border-border shadow-sm"
+                            className="flex items-center gap-1 px-3 h-9 rounded-lg text-sm font-medium border border-[#9C6B3D]/50 text-[#5D4037] hover:bg-[#5D4037] hover:text-white hover:border-[#5D4037] disabled:opacity-35 disabled:cursor-not-allowed transition-all"
                           >
                             Next
                             <ChevronRight className="h-4 w-4" />
-                          </Button>
+                          </button>
                         </div>
+
+                        {/* Page info */}
+                        <p className="text-xs text-muted-foreground">
+                          Page {productsData?.page ?? 1} of{" "}
+                          {productsData?.pages ?? 1}
+                          {productsData?.total != null &&
+                            ` · ${productsData.total} products`}
+                        </p>
                       </div>
                     )}
                   </>

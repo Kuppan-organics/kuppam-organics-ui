@@ -62,7 +62,7 @@ const mapApiProductToProduct = (apiProduct: ApiProduct): Product => {
     image: apiProduct.images?.[0] || "/placeholder.svg",
     category: apiProduct.category?.toLowerCase() || "uncategorized",
     weight: "1 kg", // Default weight
-    inStock: (apiProduct.stock || 0) > 0,
+    inStock: (apiProduct as any).isActive === true || (apiProduct.stock || 0) > 0,
   };
 };
 

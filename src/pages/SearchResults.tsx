@@ -55,7 +55,7 @@ const mapApiProductToProduct = (
     image: apiProduct.images?.[0] || "/placeholder.svg",
     category: apiProduct.category?.toLowerCase() || "uncategorized",
     weight: "1 kg",
-    inStock: (apiProduct.stock || 0) > 0,
+    inStock: (apiProduct as any).isActive === true || (apiProduct.stock || 0) > 0,
     discount: discountPercentage,
   };
 };

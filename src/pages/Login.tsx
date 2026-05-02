@@ -38,9 +38,9 @@ export default function Login() {
             localStorage.setItem("rememberMe", "true");
           }
 
-          // Sync localStorage cart to API
+          // Sync localStorage cart to API (pass token directly since state hasn't updated yet)
           try {
-            await syncLocalCartToAPI();
+            await syncLocalCartToAPI(data.token);
           } catch (error) {
             console.error("Failed to sync cart:", error);
           }
