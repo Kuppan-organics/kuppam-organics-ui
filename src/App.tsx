@@ -23,6 +23,8 @@ import Locations from "./pages/Locations";
 import Shipping from "./pages/Shipping";
 import Returns from "./pages/Returns";
 import FAQ from "./pages/FAQ";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/profile/Dashboard";
@@ -82,7 +84,10 @@ const App = () => (
             <Route path="/locations" element={<Locations />} />
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/returns" element={<Returns />} />
+            <Route path="/refund" element={<Returns />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route
               path="/profile"
               element={
@@ -98,31 +103,7 @@ const App = () => (
               <Route path="cart" element={<ProfileCart />} />
               <Route path="settings" element={<Settings />} />
             </Route>
-            {/* Admin routes commented out - Admin functionality moved to separate app */}
-            {/* <Route
-              path="/admin"
-              element={
-                <AdminRoute>
-                  <AdminDashboard />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/products"
-              element={
-                <AdminRoute>
-                  <AdminProducts />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/orders"
-              element={
-                <AdminRoute>
-                  <AdminOrders />
-                </AdminRoute>
-              }
-            /> */}
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
